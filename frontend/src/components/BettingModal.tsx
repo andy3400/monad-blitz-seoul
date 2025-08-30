@@ -141,7 +141,7 @@ const BettingModal: React.FC<BettingModalProps> = ({
           <div className="premium-glass p-4 text-center">
             <div className="text-sm text-white/60 mb-1 uppercase tracking-wider font-medium">Total Bets</div>
             <div className="text-lg font-bold text-transparent bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text">
-              {token.totalBets || '0'} ETH
+              {token.totalBets || '0'} MON
             </div>
           </div>
         </div>
@@ -167,7 +167,7 @@ const BettingModal: React.FC<BettingModalProps> = ({
               </label>
               {balance && (
                 <div className="text-sm text-white/70">
-                  잔액: <span className="font-medium text-cyan-400">{parseFloat(formatEther(balance.value)).toFixed(4)} ETH</span>
+                  잔액: <span className="font-medium text-cyan-400">{parseFloat(formatEther(balance.value)).toFixed(4)} MON</span>
                 </div>
               )}
             </div>

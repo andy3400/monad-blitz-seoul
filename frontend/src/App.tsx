@@ -242,7 +242,7 @@ function App() {
 
   const handleBet = async (amount: string) => {
     // 베팅 완료 후 데이터 새로고침
-    console.log('Bet completed:', amount, 'ETH on', selectedToken?.symbol)
+    console.log('Bet completed:', amount, 'MON on', selectedToken?.symbol)
     await refetchAll?.()
   }
 
@@ -282,7 +282,7 @@ function App() {
             <div className="space-y-2">
               <div className="text-sm font-medium text-white/60 uppercase tracking-wider">Prize Pool</div>
               <div className="text-3xl font-bold text-transparent bg-gradient-to-r from-green-400 via-emerald-400 to-cyan-400 bg-clip-text">
-                {parseFloat(roundData.totalPool).toFixed(4)} ETH
+                {parseFloat(roundData.totalPool).toFixed(4)} MON
               </div>
             </div>
             <div className="space-y-2">
@@ -353,7 +353,7 @@ function App() {
                                 <div className="token-symbol-compact">{token.symbol}</div>
                                 {userBetMap[token.address.toLowerCase()] && (
                                   <div className="bet-amount-compact">
-                                    {parseFloat(userBetMap[token.address.toLowerCase()]).toFixed(3)} ETH
+                                    {parseFloat(userBetMap[token.address.toLowerCase()]).toFixed(3)} MON
                                   </div>
                                 )}
                               </div>

@@ -112,7 +112,7 @@ const BetsList: React.FC<BetsListProps> = ({
                   </div>
                   <div className="text-right">
                     <div className="font-bold text-transparent bg-gradient-to-r from-yellow-400 to-amber-400 bg-clip-text">
-                      {parseFloat(formatEther(bet.amount)).toFixed(4)} ETH
+                      {parseFloat(formatEther(bet.amount)).toFixed(4)} MON
                     </div>
                   </div>
                 </div>
