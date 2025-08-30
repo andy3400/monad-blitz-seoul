@@ -164,11 +164,8 @@ function App() {
                 {Array.from({ length: 9 }).map((_, index) => (
                   <div key={index} className="isometric-cube opacity-50">
                     <div className="cube-face front"></div>
-                    <div className="cube-face back"></div>
                     <div className="cube-face right"></div>
-                    <div className="cube-face left"></div>
                     <div className="cube-face top"></div>
-                    <div className="cube-face bottom"></div>
                   </div>
                 ))}
               </div>
@@ -276,7 +273,7 @@ function App() {
                 }`}
                 onClick={() => handleTokenClick(token)}
               >
-                {/* Cube Faces */}
+                {/* Optimized Cube - Only 3 faces for performance */}
                 <div className="cube-face front">
                   {token && (
                     <div className="token-content">
@@ -290,11 +287,8 @@ function App() {
                     </div>
                   )}
                 </div>
-                <div className="cube-face back"></div>
                 <div className="cube-face right"></div>
-                <div className="cube-face left"></div>
                 <div className="cube-face top"></div>
-                <div className="cube-face bottom"></div>
               </div>
             ))}
           </div>

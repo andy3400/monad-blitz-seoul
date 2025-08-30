@@ -26,29 +26,12 @@
     width: 100%;
     height: 100%;
     background-image: 
-      radial-gradient(circle at 20% 80%, rgba(183, 148, 246, 0.15) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, rgba(99, 179, 237, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 40% 40%, rgba(0, 255, 255, 0.05) 0%, transparent 70%);
+      radial-gradient(circle at 25% 75%, rgba(183, 148, 246, 0.12) 0%, transparent 60%),
+      radial-gradient(circle at 75% 25%, rgba(99, 179, 237, 0.08) 0%, transparent 60%);
     pointer-events: none;
     z-index: -1;
-    animation: aurora 20s ease-in-out infinite;
   }
   
-  body::after {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 
-      linear-gradient(45deg, transparent 49%, rgba(139, 92, 246, 0.03) 50%, transparent 51%),
-      linear-gradient(-45deg, transparent 49%, rgba(139, 92, 246, 0.03) 50%, transparent 51%);
-    background-size: 60px 60px;
-    pointer-events: none;
-    z-index: -1;
-    opacity: 0.4;
-  }
 }
 
 @layer components {
@@ -285,54 +268,25 @@
 @keyframes neon-pulse {
   0%, 100% {
     box-shadow: 
-      0 0 20px rgba(183, 148, 246, 0.4),
-      0 0 40px rgba(183, 148, 246, 0.2),
-      0 8px 32px rgba(0, 0, 0, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      0 0 15px rgba(183, 148, 246, 0.4),
+      0 4px 16px rgba(0, 0, 0, 0.3);
   }
   50% {
     box-shadow: 
-      0 0 30px rgba(183, 148, 246, 0.8),
-      0 0 60px rgba(183, 148, 246, 0.4),
-      0 0 100px rgba(183, 148, 246, 0.2),
-      0 8px 32px rgba(0, 0, 0, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      0 0 25px rgba(183, 148, 246, 0.7),
+      0 4px 20px rgba(0, 0, 0, 0.4);
   }
 }
 
 @keyframes isometric-float {
   0%, 100% {
-    transform: rotateX(60deg) rotateY(-45deg) rotateZ(0deg) translateZ(0px);
-  }
-  25% {
-    transform: rotateX(60deg) rotateY(-43deg) rotateZ(1deg) translateZ(10px);
+    transform: rotateX(60deg) rotateY(-45deg) rotateZ(0deg);
   }
   50% {
-    transform: rotateX(62deg) rotateY(-45deg) rotateZ(0deg) translateZ(15px);
-  }
-  75% {
-    transform: rotateX(60deg) rotateY(-47deg) rotateZ(-1deg) translateZ(10px);
+    transform: rotateX(61deg) rotateY(-44deg) rotateZ(0.5deg);
   }
 }
 
-@keyframes aurora {
-  0%, 100% {
-    opacity: 1;
-    transform: rotate(0deg) scale(1);
-  }
-  25% {
-    opacity: 0.8;
-    transform: rotate(1deg) scale(1.02);
-  }
-  50% {
-    opacity: 0.9;
-    transform: rotate(0deg) scale(1.05);
-  }
-  75% {
-    opacity: 0.7;
-    transform: rotate(-1deg) scale(1.02);
-  }
-}
 
 @keyframes float-particle {
   0% {
@@ -407,12 +361,14 @@
   height: 120px;
   position: relative;
   transform-style: preserve-3d;
-  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   cursor: pointer;
-  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .isometric-cube:hover {
+  will-change: transform;
   transform: translateZ(60px) scale(1.1);
 }
 
@@ -420,46 +376,31 @@
   position: absolute;
   width: 120px;
   height: 120px;
-  background: linear-gradient(
-    135deg,
-    rgba(183, 148, 246, 0.25) 0%,
-    rgba(99, 179, 237, 0.15) 50%,
-    rgba(183, 148, 246, 0.25) 100%
-  );
-  backdrop-filter: blur(30px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 16px;
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  background: linear-gradient(135deg, rgba(183, 148, 246, 0.25) 0%, rgba(99, 179, 237, 0.25) 100%);
+  backdrop-filter: blur(15px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  contain: layout style paint;
 }
 
 .cube-face.front { 
-  transform: rotateY(0deg) translateZ(60px); 
-}
-.cube-face.back { 
-  transform: rotateY(180deg) translateZ(60px);
-  opacity: 0.5;
+  transform: rotateY(0deg) translateZ(60px);
+  transform-origin: center center;
 }
 .cube-face.right { 
   transform: rotateY(90deg) translateZ(60px);
-  background: linear-gradient(135deg, rgba(183, 148, 246, 0.15), rgba(99, 179, 237, 0.1));
-}
-.cube-face.left { 
-  transform: rotateY(-90deg) translateZ(60px);
-  background: linear-gradient(135deg, rgba(99, 179, 237, 0.15), rgba(183, 148, 246, 0.1));
+  background: linear-gradient(135deg, rgba(183, 148, 246, 0.2) 0%, rgba(99, 179, 237, 0.15) 100%);
+  transform-origin: center center;
 }
 .cube-face.top { 
   transform: rotateX(90deg) translateZ(60px);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(183, 148, 246, 0.15));
-}
-.cube-face.bottom { 
-  transform: rotateX(-90deg) translateZ(60px);
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(183, 148, 246, 0.05));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(183, 148, 246, 0.2) 100%);
+  transform-origin: center center;
 }
 
 .cube-active {
@@ -467,18 +408,12 @@
 }
 
 .cube-active .cube-face {
-  background: linear-gradient(
-    135deg,
-    rgba(183, 148, 246, 0.6) 0%,
-    rgba(0, 255, 255, 0.3) 50%,
-    rgba(183, 148, 246, 0.6) 100%
-  );
+  background: linear-gradient(135deg, rgba(183, 148, 246, 0.5) 0%, rgba(0, 255, 255, 0.3) 100%);
   box-shadow: 
-    0 0 30px rgba(183, 148, 246, 0.8),
-    0 0 60px rgba(183, 148, 246, 0.4),
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  border-color: rgba(183, 148, 246, 0.8);
+    0 0 20px rgba(183, 148, 246, 0.6),
+    0 4px 16px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  border-color: rgba(183, 148, 246, 0.7);
 }
 
 .cube-selected {
@@ -486,17 +421,11 @@
 }
 
 .cube-selected .cube-face {
-  background: linear-gradient(
-    135deg,
-    rgba(246, 224, 94, 0.4) 0%,
-    rgba(251, 191, 36, 0.3) 50%,
-    rgba(245, 158, 11, 0.4) 100%
-  );
+  background: linear-gradient(135deg, rgba(246, 224, 94, 0.4) 0%, rgba(245, 158, 11, 0.3) 100%);
   box-shadow: 
-    0 0 40px rgba(246, 224, 94, 0.6),
-    0 0 80px rgba(246, 224, 94, 0.3),
-    0 12px 48px rgba(0, 0, 0, 0.5);
-  border-color: rgba(246, 224, 94, 0.8);
+    0 0 25px rgba(246, 224, 94, 0.5),
+    0 6px 20px rgba(0, 0, 0, 0.4);
+  border-color: rgba(246, 224, 94, 0.7);
 }
 
 .token-content {
@@ -664,28 +593,34 @@
   .isometric-container {
     transform: rotateX(20deg) rotateY(-15deg) rotateZ(0deg);
     gap: 0.75rem;
+    animation: none; /* 모바일에서 애니메이션 비활성화 */
   }
   
   .isometric-cube {
     width: 60px;
     height: 60px;
+    transition: transform 0.2s ease; /* 더 빠른 트랜지션 */
+  }
+  
+  .isometric-cube:hover {
+    transform: translateZ(20px) scale(1.05); /* 더 가벼운 호버 효과 */
   }
   
   .cube-face {
     width: 60px;
     height: 60px;
     border-radius: 8px;
+    backdrop-filter: blur(10px) saturate(120%); /* 가벼운 블러 */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); /* 간소화된 그림자 */
   }
   
   .cube-face.front { transform: rotateY(0deg) translateZ(30px); }
-  .cube-face.back { transform: rotateY(180deg) translateZ(30px); }
   .cube-face.right { transform: rotateY(90deg) translateZ(30px); }
-  .cube-face.left { transform: rotateY(-90deg) translateZ(30px); }
   .cube-face.top { transform: rotateX(90deg) translateZ(30px); }
-  .cube-face.bottom { transform: rotateX(-90deg) translateZ(30px); }
   
   .blitz-logo {
     font-size: 1.2rem;
+    animation: none; /* 모바일에서 애니메이션 비활성화 */
   }
   
   .token-symbol {
@@ -701,31 +636,38 @@
   }
   
   .premium-glass {
-    backdrop-filter: blur(20px) saturate(150%);
+    backdrop-filter: blur(15px) saturate(130%);
     border-radius: 16px;
+  }
+  
+  .cube-active {
+    animation: none; /* 모바일에서 네온 펄스 비활성화 */
   }
 }
 
 /* Performance Optimizations */
 @media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
   .isometric-container {
     animation: none;
+    transform: rotateX(60deg) rotateY(-45deg) rotateZ(0deg);
   }
   
   .isometric-cube:hover {
-    transform: none;
-  }
-  
-  .cube-active {
-    animation: none;
-  }
-  
-  .blitz-logo {
-    animation: none;
+    transform: translateZ(0) scale(1);
   }
   
   .floating-particles {
     display: none;
+  }
+  
+  .backdrop-filter, .premium-glass, .cube-face {
+    backdrop-filter: none;
   }
 }
 
