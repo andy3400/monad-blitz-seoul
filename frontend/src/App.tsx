@@ -126,10 +126,16 @@ function App() {
   // 로딩 중
   if (factoryLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <div className="glass-card p-8 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p className="text-white/70">블록체인에서 데이터를 불러오는 중...</p>
+      <div className="min-h-screen flex items-center justify-center overflow-hidden relative">
+        <div className="floating-particles"></div>
+        <div className="premium-glass p-12 text-center relative z-10">
+          <div className="mb-8">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-r-4 border-purple-400 border-l-transparent border-b-transparent mx-auto mb-6"></div>
+            <div className="text-2xl font-bold mb-4 text-transparent bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text">
+              Loading Blockchain Data
+            </div>
+            <p className="text-white/70 text-lg">Fetching latest round information...</p>
+          </div>
         </div>
       </div>
     )
@@ -138,13 +144,13 @@ function App() {
   // 현재 활성 라운드가 없는 경우
   if (!currentActiveRound || currentActiveRound === '0x0000000000000000000000000000000000000000') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="min-h-screen overflow-hidden relative">
         <div className="floating-particles"></div>
         
-        <nav className="relative z-10 p-6">
-          <div className="glass-card max-w-7xl mx-auto">
-            <div className="flex justify-between items-center p-4">
-              <h1 className="text-3xl font-bold gradient-text">Monad Blitz</h1>
+        <nav className="relative z-20 p-6">
+          <div className="premium-glass max-w-7xl mx-auto">
+            <div className="flex justify-between items-center p-6">
+              <h1 className="blitz-logo">MONAD BLITZ</h1>
               <ConnectButton />
             </div>
           </div>
@@ -152,18 +158,30 @@ function App() {
 
         <main className="relative z-10 flex items-center justify-center min-h-[80vh]">
           <div className="text-center">
-            <div className="logo-container mb-8">
-              {/* 3x3 그리드로 9개 타일 */}
-              {Array.from({ length: 9 }).map((_, index) => (
-                <div key={index} className="tile opacity-30"></div>
-              ))}
+            {/* 3D Waiting Grid */}
+            <div className="isometric-scene mb-12">
+              <div className="isometric-container" style={{animation: 'isometric-float 8s ease-in-out infinite'}}>
+                {Array.from({ length: 9 }).map((_, index) => (
+                  <div key={index} className="isometric-cube opacity-50">
+                    <div className="cube-face front"></div>
+                    <div className="cube-face back"></div>
+                    <div className="cube-face right"></div>
+                    <div className="cube-face left"></div>
+                    <div className="cube-face top"></div>
+                    <div className="cube-face bottom"></div>
+                  </div>
+                ))}
+              </div>
             </div>
-            <h2 className="text-4xl font-bold gradient-text mb-4">
-              다음 라운드를 기다리는 중...
-            </h2>
-            <p className="text-xl text-white/80 max-w-2xl mx-auto">
-              현재 진행 중인 라운드가 없습니다. 새로운 라운드가 시작될 때까지 기다려주세요.
-            </p>
+            
+            <div className="premium-glass p-8 max-w-2xl mx-auto">
+              <div className="text-4xl font-bold mb-6 text-transparent bg-gradient-to-r from-purple-400 via-violet-400 to-indigo-400 bg-clip-text">
+                ⏳ Waiting for Next Round
+              </div>
+              <p className="text-xl text-white/80 leading-relaxed">
+                No active round currently. Please wait for the next round to begin.
+              </p>
+            </div>
           </div>
         </main>
       </div>
@@ -193,16 +211,16 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
+    <div className="min-h-screen overflow-hidden relative">
       <div className="floating-particles"></div>
       
       {/* Header */}
-      <nav className="relative z-10 p-6">
-        <div className="glass-card max-w-7xl mx-auto">
-          <div className="flex justify-between items-center p-4">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-3xl font-bold gradient-text">Monad Blitz</h1>
-              <span className="text-sm text-purple-300 bg-purple-900/30 px-3 py-1 rounded-full">
+      <nav className="relative z-20 p-6">
+        <div className="premium-glass max-w-7xl mx-auto">
+          <div className="flex justify-between items-center p-6">
+            <div className="flex items-center space-x-6">
+              <h1 className="blitz-logo">MONAD BLITZ</h1>
+              <span className="text-sm font-semibold text-cyan-300 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 backdrop-blur-sm px-4 py-2 rounded-full border border-cyan-400/30">
                 {roundData.roundName}
               </span>
             </div>
@@ -211,95 +229,118 @@ function App() {
         </div>
       </nav>
 
-      {/* Main Game Area */}
-      <main className="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-140px)] px-6">
-        {/* Round Info */}
-        <div className="mb-8 glass-card p-6 text-center">
-          <div className="flex items-center justify-center space-x-8">
-            <div>
-              <div className="text-sm text-white/60">총 상금 풀</div>
-              <div className="text-2xl font-bold text-green-400">
+      {/* Stats Bar */}
+      <div className="relative z-15 px-6 mb-8">
+        <div className="premium-glass p-6 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+            <div className="space-y-2">
+              <div className="text-sm font-medium text-white/60 uppercase tracking-wider">Prize Pool</div>
+              <div className="text-3xl font-bold text-transparent bg-gradient-to-r from-green-400 via-emerald-400 to-cyan-400 bg-clip-text">
                 {parseFloat(roundData.totalPool).toFixed(4)} ETH
               </div>
             </div>
-            <div>
-              <div className="text-sm text-white/60">남은 시간</div>
+            <div className="space-y-2">
+              <div className="text-sm font-medium text-white/60 uppercase tracking-wider">Time Remaining</div>
               <CountdownTimer 
                 endTime={roundData.endTime}
                 isFinalized={roundData.isFinalized}
               />
             </div>
-            <div>
-              <div className="text-sm text-white/60">참여 토큰</div>
-              <div className="text-2xl font-bold text-purple-400">
+            <div className="space-y-2">
+              <div className="text-sm font-medium text-white/60 uppercase tracking-wider">Active Tokens</div>
+              <div className="text-3xl font-bold text-transparent bg-gradient-to-r from-purple-400 via-violet-400 to-indigo-400 bg-clip-text">
                 {gameTokens.length}
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Token Grid */}
-        <div className="logo-container mb-8">
-          {gridTokens.map((token, index) => (
-            <div
-              key={index}
-              className={`tile ${
-                token 
-                  ? 'cursor-pointer hover:scale-110 transition-transform duration-300' 
-                  : 'opacity-20'
-              } ${
-                token && userBetMap[token.address.toLowerCase()] 
-                  ? 'border-purple-400 bg-purple-500/30 shadow-purple-500/50' 
-                  : ''
-              } ${
-                roundData.winnerToken && token?.symbol === roundData.winnerToken
-                  ? 'winner'
-                  : ''
-              }`}
-              onClick={() => handleTokenClick(token)}
-            >
-              {token && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-                  <div className="text-2xl font-bold mb-1">{token.logo}</div>
-                  <div className="text-xs">{token.symbol}</div>
-                  {userBetMap[token.address.toLowerCase()] && (
-                    <div className="text-xs text-purple-300 mt-1">
-                      {parseFloat(userBetMap[token.address.toLowerCase()]).toFixed(3)}
+      {/* 3D Isometric Game Grid */}
+      <main className="relative z-10 flex flex-col items-center justify-center px-6">
+        <div className="isometric-scene">
+          <div className="isometric-container" style={{animation: 'isometric-float 10s ease-in-out infinite'}}>
+            {gridTokens.map((token, index) => (
+              <div
+                key={index}
+                className={`isometric-cube ${
+                  token ? '' : 'opacity-30'
+                } ${
+                  token && userBetMap[token.address.toLowerCase()] 
+                    ? 'cube-selected' 
+                    : ''
+                } ${
+                  roundData.winnerToken && token?.symbol === roundData.winnerToken
+                    ? 'cube-active'
+                    : ''
+                }`}
+                onClick={() => handleTokenClick(token)}
+              >
+                {/* Cube Faces */}
+                <div className="cube-face front">
+                  {token && (
+                    <div className="token-content">
+                      <div className="token-logo">{token.logo}</div>
+                      <div className="token-symbol">{token.symbol}</div>
+                      {userBetMap[token.address.toLowerCase()] && (
+                        <div className="bet-amount">
+                          {parseFloat(userBetMap[token.address.toLowerCase()]).toFixed(3)} ETH
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Instructions */}
-        <div className="text-center max-w-2xl">
-          {!isConnected ? (
-            <p className="text-white/70 text-lg">
-              지갑을 연결하고 토큰을 클릭하여 베팅하세요
-            </p>
-          ) : roundData.isFinalized ? (
-            <div className="glass-card p-6">
-              <h3 className="text-xl font-bold text-green-400 mb-2">
-                🎉 라운드 종료!
-              </h3>
-              {roundData.winnerToken ? (
-                <p className="text-white/70">
-                  <span className="text-green-400 font-bold">{roundData.winnerToken}</span>
-                  이 승리했습니다! 승자들에게 상금이 자동 분배되었습니다.
-                </p>
-              ) : (
-                <p className="text-white/70">승리 토큰을 확인하는 중...</p>
-              )}
-            </div>
-          ) : (
-            <p className="text-white/70 text-lg">
-              가장 높은 상승률을 기록할 것 같은 토큰을 클릭하여 베팅하세요
-            </p>
-          )}
+                <div className="cube-face back"></div>
+                <div className="cube-face right"></div>
+                <div className="cube-face left"></div>
+                <div className="cube-face top"></div>
+                <div className="cube-face bottom"></div>
+              </div>
+            ))}
+          </div>
         </div>
       </main>
+
+      {/* Instructions */}
+      <div className="relative z-10 text-center max-w-4xl mx-auto px-6 mt-12 mb-8">
+        {!isConnected ? (
+          <div className="premium-glass p-8">
+            <div className="text-2xl font-bold mb-4 text-transparent bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text">
+              🔗 Connect Your Wallet
+            </div>
+            <p className="text-white/80 text-lg leading-relaxed">
+              Connect your wallet and click on any token cube to place your bet
+            </p>
+          </div>
+        ) : roundData.isFinalized ? (
+          <div className="premium-glass p-8">
+            <div className="text-3xl font-bold mb-6 text-transparent bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 bg-clip-text">
+              🎉 Round Complete!
+            </div>
+            {roundData.winnerToken ? (
+              <div className="space-y-4">
+                <div className="text-2xl font-bold text-transparent bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text">
+                  {roundData.winnerToken} WINS!
+                </div>
+                <p className="text-white/80 text-lg">
+                  Congratulations to all winners! Prizes have been automatically distributed.
+                </p>
+              </div>
+            ) : (
+              <p className="text-white/70 text-lg">Determining winner...</p>
+            )}
+          </div>
+        ) : (
+          <div className="premium-glass p-8">
+            <div className="text-2xl font-bold mb-4 text-transparent bg-gradient-to-r from-purple-400 via-violet-400 to-indigo-400 bg-clip-text">
+              ⚡ Choose Your Token
+            </div>
+            <p className="text-white/80 text-lg leading-relaxed">
+              Select the token you believe will have the highest price increase during this round
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* Betting Modal */}
       <BettingModal

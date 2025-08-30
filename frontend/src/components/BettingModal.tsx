@@ -38,7 +38,7 @@ const BettingModal: React.FC<BettingModalProps> = ({
       />
       
       {/* Modal */}
-      <div className="relative glass-card p-8 max-w-md w-full mx-4 animate-[scale-in_0.2s_ease-out] origin-center">
+      <div className="relative premium-glass p-8 max-w-lg w-full mx-4 animate-[scale-in_0.2s_ease-out] origin-center">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
@@ -60,15 +60,15 @@ const BettingModal: React.FC<BettingModalProps> = ({
 
         {/* Token Stats */}
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="glass-card p-4 text-center">
-            <div className="text-sm text-white/60 mb-1">초기 가격</div>
-            <div className="text-lg font-bold">
+          <div className="premium-glass p-4 text-center">
+            <div className="text-sm text-white/60 mb-1 uppercase tracking-wider font-medium">Initial Price</div>
+            <div className="text-lg font-bold text-transparent bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text">
               ${token.initialPrice ? token.initialPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 }) : 'N/A'}
             </div>
           </div>
-          <div className="glass-card p-4 text-center">
-            <div className="text-sm text-white/60 mb-1">총 베팅</div>
-            <div className="text-lg font-bold text-purple-400">
+          <div className="premium-glass p-4 text-center">
+            <div className="text-sm text-white/60 mb-1 uppercase tracking-wider font-medium">Total Bets</div>
+            <div className="text-lg font-bold text-transparent bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text">
               {token.totalBets || '0'} ETH
             </div>
           </div>
@@ -76,10 +76,10 @@ const BettingModal: React.FC<BettingModalProps> = ({
 
         {/* Current User Bet */}
         {userCurrentBet && parseFloat(userCurrentBet) > 0 && (
-          <div className="glass-card p-4 mb-6 bg-purple-500/10 border-purple-500/30">
+          <div className="premium-glass p-4 mb-6 border-2 border-yellow-400/30">
             <div className="text-center">
-              <div className="text-sm text-white/70 mb-1">현재 내 베팅</div>
-              <div className="text-xl font-bold text-purple-400">
+              <div className="text-sm text-white/70 mb-1 uppercase tracking-wider font-medium">Your Current Bet</div>
+              <div className="text-xl font-bold text-transparent bg-gradient-to-r from-yellow-400 to-amber-400 bg-clip-text">
                 {parseFloat(userCurrentBet).toFixed(4)} ETH
               </div>
             </div>
