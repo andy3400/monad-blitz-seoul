@@ -263,9 +263,9 @@ const BettingModal: React.FC<BettingModalProps> = ({
                     {(() => {
                       const currentTokenBets = parseFloat(token.totalBets);
                       const userBet = parseFloat(betAmount);
-                      const currentUserBet = userCurrentBet
-                        ? parseFloat(userCurrentBet)
-                        : 0;
+                      // const currentUserBet = userCurrentBet
+                      //   ? parseFloat(userCurrentBet)
+                      //   : 0;
                       const totalPoolAmount = parseFloat(totalPool);
 
                       // 새로운 베팅 후 해당 토큰의 총 베팅액
@@ -328,11 +328,11 @@ const BettingModal: React.FC<BettingModalProps> = ({
           <button
             onClick={handleBet}
             disabled={
-              !betAmount ||
+              (!betAmount ||
               parseFloat(betAmount) <= 0 ||
               isPending ||
               isConfirming ||
-              hasInsufficientBalance
+              Boolean(hasInsufficientBalance)) ?? false
             }
             className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
           >

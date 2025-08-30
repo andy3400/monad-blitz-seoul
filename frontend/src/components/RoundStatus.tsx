@@ -16,7 +16,6 @@ const RoundStatus: React.FC<RoundStatusProps> = ({
   roundName,
   isActive,
   isFinalized,
-  startTime,
   endTime,
   totalPool,
   participantCount,
@@ -110,7 +109,8 @@ const RoundStatus: React.FC<RoundStatusProps> = ({
             ) : (
               <div>
                 <div className="mb-2">
-                  <CountdownTimer 
+                  <CountdownTimer
+                      isFinalized={isFinalized}
                     endTime={endTime}
                     onTimeUp={() => console.log('Round ended!')}
                   />

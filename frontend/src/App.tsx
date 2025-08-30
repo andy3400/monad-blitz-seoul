@@ -33,7 +33,7 @@ const getTokenImage = (symbol: string) => {
 }
 
 function App() {
-  const { address, isConnected } = useAccount()
+  const { isConnected } = useAccount()
   const { openConnectModal } = useConnectModal()
   const [selectedToken, setSelectedToken] = useState<TokenInfo | null>(null)
   const [isBettingModalOpen, setIsBettingModalOpen] = useState(false)
@@ -345,15 +345,15 @@ function App() {
             <div className="text-center space-y-2">
               <div className="text-sm font-medium text-white/60 uppercase tracking-wider">Prize Pool</div>
               <div className="text-3xl font-bold text-transparent bg-gradient-to-r from-green-400 via-emerald-400 to-cyan-400 bg-clip-text">
-                {parseFloat(roundData.totalPool).toFixed(4)} MON
+                {parseFloat(roundData!.totalPool).toFixed(4)} MON
               </div>
               <div className="text-xs text-white/40 uppercase tracking-wider mt-1">Total Pool</div>
             </div>
             <div className="hidden md:block h-12 w-px bg-white/10"></div>
             <div className="text-center">
               <CountdownTimer 
-                endTime={roundData.endTime}
-                isFinalized={roundData.isFinalized}
+                endTime={roundData!.endTime}
+                isFinalized={roundData!.isFinalized}
               />
               <div className="text-xs text-white/40 uppercase tracking-wider mt-1">Time Remaining</div>
             </div>
@@ -387,7 +387,7 @@ function App() {
                           ? 'cube-selected' 
                           : ''
                       } ${
-                        roundData.winnerToken && token?.symbol === roundData.winnerToken
+                        roundData!.winnerToken && token?.symbol === roundData!.winnerToken
                           ? 'cube-active'
                           : ''
                       }`}
@@ -452,15 +452,15 @@ function App() {
 
       {/* Instructions */}
       <div className="relative z-10 text-center max-w-4xl mx-auto px-6 mt-12 mb-8">
-        { roundData.isFinalized ? (
+        { roundData!.isFinalized ? (
           <div className="premium-glass p-8">
             <div className="text-3xl font-bold mb-6 text-white">
               Round Complete
             </div>
-            {roundData.winnerToken ? (
+            {roundData!.winnerToken ? (
               <div className="space-y-4">
                 <div className="text-2xl font-bold text-purple-400">
-                  {roundData.winnerToken} had the highest volatility
+                  {roundData!.winnerToken} had the highest volatility
                 </div>
                 <p className="text-white/80 text-lg">
                   Winners have been paid automatically.

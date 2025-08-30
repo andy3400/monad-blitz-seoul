@@ -1,5 +1,4 @@
-import { useReadContract, useReadContracts } from 'wagmi'
-import { useAccount } from 'wagmi'
+import {useAccount, useReadContracts} from 'wagmi'
 
 const MULTICALL3_ADDRESS = '0xcA11bde05977b3631167028862bE2a173976CA11'
 

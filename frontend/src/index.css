@@ -351,7 +351,7 @@
   perspective: 1200px;
   perspective-origin: center center;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   min-height: 60vh;
   position: relative;
@@ -364,12 +364,12 @@
   transform-style: preserve-3d;
   transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
   position: relative;
-  padding: 2rem;
+  padding: 0;
 }
 
 .isometric-cube {
-  width: 120px;
-  height: 120px;
+  width: 160px;
+  height: 160px;
   position: relative;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -391,8 +391,8 @@
 
 .cube-face {
   position: absolute;
-  width: 120px;
-  height: 120px;
+  width: 160px;
+  height: 160px;
   background: linear-gradient(
     135deg,
     rgba(120, 119, 198, 0.12) 0%,
@@ -495,8 +495,8 @@
 /* Removed unused .token-image-left class */
 
 .token-image-small {
-  width: 36px;
-  height: 36px;
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
   object-fit: cover;
   border: 1.5px solid rgba(255, 255, 255, 0.4);

@@ -1,5 +1,5 @@
-import { useReadContract, useReadContracts } from 'wagmi'
-import { CONTRACT_ADDRESSES } from '../config/contracts'
+import {useReadContract} from 'wagmi'
+import {CONTRACT_ADDRESSES} from '../config/contracts'
 
 const ROUND_FACTORY_ABI = [
   {
