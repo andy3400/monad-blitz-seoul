@@ -8,6 +8,7 @@ import {useRound} from './hooks/useRound'
 import BettingModal from './components/BettingModal'
 import BetsList from './components/BetsList'
 import CountdownTimer from './components/CountdownTimer'
+import MiniChart from './components/MiniChart'
 import {CONTRACT_ADDRESSES, type TokenInfo} from './config/contracts'
 
 // Token images
@@ -281,7 +282,7 @@ function App() {
         </div>
       </nav>
 
-      {/* Minimal Hero Section */}
+      {/* Hero Section */}
       <div className="relative z-15 px-4 mb-8">
         <div className="max-w-7xl mx-auto text-center py-8">
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
@@ -293,34 +294,34 @@ function App() {
         </div>
       </div>
 
-      {/* Minimal Stats */}
-      <div className="relative z-15 px-4 mb-12">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-16">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white">
-                {parseFloat(roundData.totalPool).toFixed(4)} <span className="text-lg font-normal text-white/40">ETH</span>
-              </div>
-              <div className="text-xs text-white/40 uppercase tracking-wider mt-1">Total Pool</div>
+      {/* Stats Bar */}
+        <div className="relative z-15 px-4 mb-12">
+            <div className="max-w-7xl mx-auto">
+                <div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-16">
+                    <div className="text-center">
+                        <div className="text-3xl font-bold text-white">
+                            {parseFloat(roundData.totalPool).toFixed(4)} <span className="text-lg font-normal text-white/40">ETH</span>
+                        </div>
+                        <div className="text-xs text-white/40 uppercase tracking-wider mt-1">Total Pool</div>
+                    </div>
+                    <div className="hidden md:block h-12 w-px bg-white/10"></div>
+                    <div className="text-center">
+                        <CountdownTimer
+                            endTime={roundData.endTime}
+                            isFinalized={roundData.isFinalized}
+                        />
+                        <div className="text-xs text-white/40 uppercase tracking-wider mt-1">Time Remaining</div>
+                    </div>
+                    <div className="hidden md:block h-12 w-px bg-white/10"></div>
+                    <div className="text-center">
+                        <div className="text-3xl font-bold text-white">
+                            {gameTokens.length}
+                        </div>
+                        <div className="text-xs text-white/40 uppercase tracking-wider mt-1">Active Tokens</div>
+                    </div>
+                </div>
             </div>
-            <div className="hidden md:block h-12 w-px bg-white/10"></div>
-            <div className="text-center">
-              <CountdownTimer 
-                endTime={roundData.endTime}
-                isFinalized={roundData.isFinalized}
-              />
-              <div className="text-xs text-white/40 uppercase tracking-wider mt-1">Time Remaining</div>
-            </div>
-            <div className="hidden md:block h-12 w-px bg-white/10"></div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white">
-                {gameTokens.length}
-              </div>
-              <div className="text-xs text-white/40 uppercase tracking-wider mt-1">Active Tokens</div>
-            </div>
-          </div>
         </div>
-      </div>
 
       {/* Main Content - 2 Column Layout */}
       <main className="relative z-10 px-4">
@@ -371,6 +372,7 @@ function App() {
                                 )}
                               </div>
                               <div className="token-info">
+                                <MiniChart symbol={token.symbol} size="small" />
                                 <div className="token-symbol-compact">{token.symbol}</div>
                                 {userBetMap[token.address.toLowerCase()] && (
                                   <div className="bet-amount-compact">
@@ -422,17 +424,7 @@ function App() {
               <p className="text-white/70 text-lg">Calculating winner...</p>
             )}
           </div>
-        ) : (
-            null
-          // <div className="premium-glass p-8">
-          //   <div className="text-2xl font-bold mb-4 text-transparent bg-gradient-to-r from-purple-400 via-violet-400 to-indigo-400 bg-clip-text">
-          //     ⚡ Choose Your Token
-          //   </div>
-          //   <p className="text-white/80 text-lg leading-relaxed">
-          //     Select the token you believe will have the highest price increase during this round
-          //   </p>
-          // </div>
-        )}
+        ) : null }
       </div>
 
       {/* Betting Modal */}
