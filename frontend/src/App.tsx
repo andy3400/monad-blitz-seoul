@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react'
-import {ConnectButton} from '@rainbow-me/rainbowkit'
+import {ConnectButton, useConnectModal} from '@rainbow-me/rainbowkit'
 import {useAccount} from 'wagmi'
 import {formatEther} from 'viem'
 import {useRoundFactory} from './hooks/useRoundFactory'
@@ -9,8 +9,30 @@ import BetsList from './components/BetsList'
 import CountdownTimer from './components/CountdownTimer'
 import {CONTRACT_ADDRESSES, type TokenInfo} from './config/contracts'
 
+// Token images
+import btcImg from './assets/token/btc.png'
+import dogeImg from './assets/token/doge.png'
+import ethImg from './assets/token/eth.png'
+import linkImg from './assets/token/link.png'
+import pepeImg from './assets/token/pepe.png'
+import solImg from './assets/token/sol.png'
+
+// Token image mapping
+const getTokenImage = (symbol: string) => {
+  const tokenImages: Record<string, string> = {
+    'BTC': btcImg,
+    'DOGE': dogeImg,
+    'ETH': ethImg,
+    'LINK': linkImg,
+    'PEPE': pepeImg,
+    'SOL': solImg,
+  }
+  return tokenImages[symbol.toUpperCase()] || null
+}
+
 function App() {
   const { address, isConnected } = useAccount()
+  const { openConnectModal } = useConnectModal()
   const [selectedToken, setSelectedToken] = useState<TokenInfo | null>(null)
   const [isBettingModalOpen, setIsBettingModalOpen] = useState(false)
 
@@ -20,11 +42,11 @@ function App() {
   // Round 데이터 - 항상 호출 (조건은 hook 내부에서 처리)
   const { registeredTokens, roundStats, timeInfo, tokenBetAmounts, userBets, betsCount, isLoading: roundLoading, refetchAll } = useRound(currentActiveRound)
 
-  // 토큰 데이터 매칭 - 항상 호출
+  // 토큰 데이터 매칭 및 순위 계산 - 항상 호출
   const gameTokens = useMemo(() => {
     if (!supportedTokens || !registeredTokens || !tokenBetAmounts) return []
 
-    return registeredTokens.map(tokenAddress => {
+    const tokensWithBets = registeredTokens.map(tokenAddress => {
       const supportedToken = supportedTokens.find(token => 
         token.tokenAddress.toLowerCase() === tokenAddress.toLowerCase()
       )
@@ -42,7 +64,25 @@ function App() {
         logo: supportedToken?.symbol?.[0] || '?',
         color: 'blue' as const,
         initialPrice: Number(supportedToken?.currentPrice || 0) / 1e18,
-        totalBets: formatEther(totalBets)
+        totalBets: formatEther(totalBets),
+        totalBetsWei: totalBets
+      }
+    })
+
+    // 베팅 금액 기준으로 순위 매기기 (내림차순)
+    const sortedByBets = [...tokensWithBets].sort((a, b) => 
+      Number(b.totalBetsWei - a.totalBetsWei)
+    )
+
+    // 각 토큰에 순위 추가 (베팅이 0이면 순위 없음)
+    return tokensWithBets.map(token => {
+      const rank = token.totalBetsWei > 0 ? 
+        sortedByBets.findIndex(t => t.address === token.address) + 1 : 
+        null
+      
+      return {
+        ...token,
+        bettingRank: rank && rank <= 3 ? rank : null
       }
     })
   }, [supportedTokens, registeredTokens, tokenBetAmounts])
@@ -152,7 +192,7 @@ function App() {
         <nav className="relative z-20 p-6">
           <div className="premium-glass max-w-7xl mx-auto">
             <div className="flex justify-between items-center p-6">
-              <h1 className="blitz-logo">MONAD BLITZ</h1>
+              <h1 className="blitz-logo">nad.bet</h1>
               <ConnectButton />
             </div>
           </div>
@@ -187,7 +227,15 @@ function App() {
 
 
   const handleTokenClick = (token: TokenInfo | null) => {
-    if (!token || roundData?.isFinalized || !isConnected) return
+    if (!token || roundData?.isFinalized) return
+    
+    // 지갑이 연결되지 않은 경우 지갑 연결 모달 열기
+    if (!isConnected) {
+      openConnectModal?.()
+      return
+    }
+    
+    // 지갑이 연결된 경우 베팅 모달 열기
     setSelectedToken(token)
     setIsBettingModalOpen(true)
   }
@@ -217,10 +265,10 @@ function App() {
         <div className="premium-glass max-w-7xl mx-auto">
           <div className="flex justify-between items-center p-6">
             <div className="flex items-center space-x-6">
-              <h1 className="blitz-logo">MONAD BLITZ</h1>
-              <span className="text-sm font-semibold text-cyan-300 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 backdrop-blur-sm px-4 py-2 rounded-full border border-cyan-400/30">
-                {roundData.roundName}
-              </span>
+              <h1 className="blitz-logo">nad.bet</h1>
+              {/*<span className="text-sm font-semibold text-cyan-300 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 backdrop-blur-sm px-4 py-2 rounded-full border border-cyan-400/30">*/}
+              {/*  {roundData.roundName}*/}
+              {/*</span>*/}
             </div>
             <ConnectButton />
           </div>
@@ -229,7 +277,7 @@ function App() {
 
       {/* Stats Bar */}
       <div className="relative z-15 px-6 mb-8">
-        <div className="premium-glass p-6 max-w-6xl mx-auto">
+        <div className="premium-glass p-6 max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
             <div className="space-y-2">
               <div className="text-sm font-medium text-white/60 uppercase tracking-wider">Prize Pool</div>
@@ -281,15 +329,36 @@ function App() {
                       {/* Ultra Optimized Cube - Single face for maximum performance */}
                       <div className="cube-face front">
                         {token && (
-                          <div className="token-content">
-                            <div className="token-logo">{token.logo}</div>
-                            <div className="token-symbol">{token.symbol}</div>
-                            {userBetMap[token.address.toLowerCase()] && (
-                              <div className="bet-amount">
-                                {parseFloat(userBetMap[token.address.toLowerCase()]).toFixed(3)} ETH
+                          <>
+                            {/* Betting Rank Badge */}
+                            {token.bettingRank && (
+                              <div className={`rank-badge rank-${token.bettingRank}`}>
+                                {token.bettingRank}
                               </div>
                             )}
-                          </div>
+                            
+                            <div className="token-content-compact">
+                              <div className="token-image-container">
+                                {getTokenImage(token.symbol) ? (
+                                  <img 
+                                    src={getTokenImage(token.symbol)!} 
+                                    alt={token.symbol}
+                                    className="token-image-small"
+                                  />
+                                ) : (
+                                  <div className="token-logo-fallback-small">{token.symbol[0]}</div>
+                                )}
+                              </div>
+                              <div className="token-info">
+                                <div className="token-symbol-compact">{token.symbol}</div>
+                                {userBetMap[token.address.toLowerCase()] && (
+                                  <div className="bet-amount-compact">
+                                    {parseFloat(userBetMap[token.address.toLowerCase()]).toFixed(3)} ETH
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </>
                         )}
                       </div>
                     </div>
@@ -314,16 +383,7 @@ function App() {
 
       {/* Instructions */}
       <div className="relative z-10 text-center max-w-4xl mx-auto px-6 mt-12 mb-8">
-        {!isConnected ? (
-          <div className="premium-glass p-8">
-            <div className="text-2xl font-bold mb-4 text-transparent bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text">
-              🔗 Connect Your Wallet
-            </div>
-            <p className="text-white/80 text-lg leading-relaxed">
-              Connect your wallet and click on any token cube to place your bet
-            </p>
-          </div>
-        ) : roundData.isFinalized ? (
+        { roundData.isFinalized ? (
           <div className="premium-glass p-8">
             <div className="text-3xl font-bold mb-6 text-transparent bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 bg-clip-text">
               🎉 Round Complete!

@@ -1,8 +1,29 @@
 import React, { useState } from 'react'
 import { formatEther, parseEther } from 'viem'
-import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
+import { useWriteContract, useWaitForTransactionReceipt, useBalance, useAccount } from 'wagmi'
 import { ROUND_ABI } from '../hooks/useRound'
 import type { TokenInfo } from '../config/contracts'
+
+// Token images
+import btcImg from '../assets/token/btc.png'
+import dogeImg from '../assets/token/doge.png'
+import ethImg from '../assets/token/eth.png'
+import linkImg from '../assets/token/link.png'
+import pepeImg from '../assets/token/pepe.png'
+import solImg from '../assets/token/sol.png'
+
+// Token image mapping function
+const getTokenImage = (symbol: string) => {
+  const tokenImages: Record<string, string> = {
+    'BTC': btcImg,
+    'DOGE': dogeImg,
+    'ETH': ethImg,
+    'LINK': linkImg,
+    'PEPE': pepeImg,
+    'SOL': solImg,
+  }
+  return tokenImages[symbol.toUpperCase()] || null
+}
 
 interface BettingModalProps {
   isOpen: boolean
@@ -22,8 +43,15 @@ const BettingModal: React.FC<BettingModalProps> = ({
   roundAddress
 }) => {
   const [betAmount, setBetAmount] = useState('')
+  const { address } = useAccount()
 
   const { writeContract, data: hash, error, isPending } = useWriteContract()
+  
+  // Get user's ETH balance
+  const { data: balance } = useBalance({
+    address: address,
+    query: { enabled: !!address && isOpen }
+  })
   
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash,
@@ -41,8 +69,12 @@ const BettingModal: React.FC<BettingModalProps> = ({
   // 조건부 렌더링
   if (!isOpen || !token) return null
 
+  // Check if user has sufficient balance
+  const hasInsufficientBalance = balance && betAmount && 
+    parseFloat(betAmount) > parseFloat(formatEther(balance.value))
+
   const handleBet = async () => {
-    if (!betAmount || parseFloat(betAmount) <= 0 || !roundAddress) return
+    if (!betAmount || parseFloat(betAmount) <= 0 || !roundAddress || hasInsufficientBalance) return
     
     try {
       await writeContract({
@@ -70,7 +102,19 @@ const BettingModal: React.FC<BettingModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
-            <div className="text-4xl">{token.logo}</div>
+            <div className="w-16 h-16 flex items-center justify-center">
+              {getTokenImage(token.symbol) ? (
+                <img 
+                  src={getTokenImage(token.symbol)!} 
+                  alt={token.symbol}
+                  className="w-16 h-16 rounded-full object-cover border-2 border-white/30 shadow-lg"
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-cyan-500 flex items-center justify-center text-2xl font-bold text-white border-2 border-white/30 shadow-lg">
+                  {token.symbol[0]}
+                </div>
+              )}
+            </div>
             <div>
               <h3 className="text-2xl font-bold">{token.symbol}</h3>
               <p className="text-white/70">{token.name}</p>
@@ -117,9 +161,16 @@ const BettingModal: React.FC<BettingModalProps> = ({
         {/* Betting Form */}
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">
-              베팅 금액 (ETH)
-            </label>
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-sm font-medium">
+                베팅 금액 (ETH)
+              </label>
+              {balance && (
+                <div className="text-sm text-white/70">
+                  잔액: <span className="font-medium text-cyan-400">{parseFloat(formatEther(balance.value)).toFixed(4)} ETH</span>
+                </div>
+              )}
+            </div>
             <input 
               type="number" 
               placeholder="0.01"
@@ -134,7 +185,7 @@ const BettingModal: React.FC<BettingModalProps> = ({
 
           {/* Quick Amount Buttons */}
           <div className="grid grid-cols-4 gap-2">
-            {['0.01', '0.05', '0.1', '0.5'].map((amount) => (
+            {['0.01', '0.05', '0.1'].map((amount) => (
               <button
                 key={amount}
                 onClick={() => setBetAmount(amount)}
@@ -143,6 +194,18 @@ const BettingModal: React.FC<BettingModalProps> = ({
                 {amount}
               </button>
             ))}
+            {balance && (
+              <button
+                onClick={() => {
+                  // Reserve small amount for gas fees (0.001 ETH)
+                  const maxAmount = Math.max(0, parseFloat(formatEther(balance.value)) - 0.001)
+                  setBetAmount(maxAmount.toFixed(4))
+                }}
+                className="btn-secondary text-sm py-2"
+              >
+                Max
+              </button>
+            )}
           </div>
 
           <div className="space-y-2 text-sm">
@@ -159,9 +222,18 @@ const BettingModal: React.FC<BettingModalProps> = ({
             )}
           </div>
 
+          {/* Balance warning */}
+          {hasInsufficientBalance && (
+            <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
+              <p className="text-sm text-red-400">
+                ⚠️ 잔액이 부족합니다. 현재 잔액: {balance ? parseFloat(formatEther(balance.value)).toFixed(4) : '0'} ETH
+              </p>
+            </div>
+          )}
+
           <button 
             onClick={handleBet}
-            disabled={!betAmount || parseFloat(betAmount) <= 0 || isPending || isConfirming}
+            disabled={!betAmount || parseFloat(betAmount) <= 0 || isPending || isConfirming || hasInsufficientBalance}
             className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isPending ? (
