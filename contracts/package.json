@@ -12,7 +12,11 @@
     "verify": "hardhat verify --network",
     "round:create": "hardhat run scripts/createRound.js --network monadTestnet",
     "round:finalize": "hardhat run scripts/finalizeRound.js --network monadTestnet",
-    "round:status": "hardhat run scripts/roundStatus.js --network monadTestnet"
+    "round:status": "hardhat run scripts/roundStatus.js --network monadTestnet",
+    "deploy:crosschain-monad": "hardhat run scripts/deployCrossChain.js --network monadTestnet",
+    "deploy:pricefeeder-sepolia": "hardhat run scripts/deployCrossChainPriceFeeder.js --network sepolia",
+    "bridge:sepolia-to-monad": "hardhat run scripts/bridgeToMonad.js --network sepolia",
+    "update-and-send": "hardhat run scripts/updateAndSend.js --network sepolia"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +27,8 @@
     "hardhat": "^2.19.0"
   },
   "dependencies": {
+    "@chainlink/contracts-ccip": "^1.6.0",
+    "@openzeppelin/contracts": "^5.4.0",
     "axios": "^1.11.0"
   }
 }

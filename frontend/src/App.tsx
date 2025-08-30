@@ -243,7 +243,7 @@ function App() {
 
   const handleBet = async (amount: string) => {
     // 베팅 완료 후 데이터 새로고침
-    console.log('Bet completed:', amount, 'ETH on', selectedToken?.symbol)
+    console.log('Bet completed:', amount, 'MON on', selectedToken?.symbol)
     await refetchAll?.()
   }
 
@@ -300,6 +300,14 @@ function App() {
             <div className="text-center">
               <div className="text-3xl font-bold text-white">
                 {parseFloat(roundData.totalPool).toFixed(4)} <span className="text-lg font-normal text-white/40">ETH</span>
+      {/* Stats Bar */}
+      <div className="relative z-15 px-6 mb-8">
+        <div className="premium-glass p-6 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+            <div className="space-y-2">
+              <div className="text-sm font-medium text-white/60 uppercase tracking-wider">Prize Pool</div>
+              <div className="text-3xl font-bold text-transparent bg-gradient-to-r from-green-400 via-emerald-400 to-cyan-400 bg-clip-text">
+                {parseFloat(roundData.totalPool).toFixed(4)} MON
               </div>
               <div className="text-xs text-white/40 uppercase tracking-wider mt-1">Total Pool</div>
             </div>
@@ -374,7 +382,7 @@ function App() {
                                 <div className="token-symbol-compact">{token.symbol}</div>
                                 {userBetMap[token.address.toLowerCase()] && (
                                   <div className="bet-amount-compact">
-                                    {parseFloat(userBetMap[token.address.toLowerCase()]).toFixed(3)} ETH
+                                    {parseFloat(userBetMap[token.address.toLowerCase()]).toFixed(3)} MON
                                   </div>
                                 )}
                               </div>

@@ -77,7 +77,7 @@ const RoundStatus: React.FC<RoundStatusProps> = ({
         <div className="glass-card p-4">
           <div className="text-center">
             <div className="text-2xl font-bold text-white mb-2">
-              {totalPool} ETH
+              {totalPool} MON
             </div>
             <div className="text-sm text-white/60">총 상금 풀</div>
             <div className="text-xs text-white/40 mt-1">

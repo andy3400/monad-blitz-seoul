@@ -116,7 +116,7 @@ const TokenCard: React.FC<TokenCardProps> = ({ token, isSelected, onClick, disab
                 <div className="flex justify-between text-sm">
                   <span className="text-white/60">총 베팅</span>
                   <span className="text-white font-mono">
-                    {token.totalBets} ETH
+                    {token.totalBets} MON
                   </span>
                 </div>
               )}
