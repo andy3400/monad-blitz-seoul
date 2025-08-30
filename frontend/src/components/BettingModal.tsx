@@ -32,6 +32,7 @@ interface BettingModalProps {
   onBet: (amount: string) => void
   userCurrentBet?: string
   roundAddress?: string
+  totalPool?: string
 }
 
 const BettingModal: React.FC<BettingModalProps> = ({ 
@@ -40,7 +41,8 @@ const BettingModal: React.FC<BettingModalProps> = ({
   token, 
   onBet, 
   userCurrentBet,
-  roundAddress
+  roundAddress,
+  totalPool
 }) => {
   const [betAmount, setBetAmount] = useState('')
   const { address } = useAccount()
@@ -132,15 +134,15 @@ const BettingModal: React.FC<BettingModalProps> = ({
 
         {/* Token Stats */}
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="premium-glass p-4 text-center">
-            <div className="text-sm text-white/60 mb-1 uppercase tracking-wider font-medium">Initial Price</div>
-            <div className="text-lg font-bold text-transparent bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text">
+          <div className="p-4 text-center border border-white/10 rounded-lg">
+            <div className="text-xs text-white/40 mb-1 uppercase tracking-wider">Start Price</div>
+            <div className="text-lg font-semibold text-white">
               ${token.initialPrice ? token.initialPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 }) : 'N/A'}
             </div>
           </div>
-          <div className="premium-glass p-4 text-center">
-            <div className="text-sm text-white/60 mb-1 uppercase tracking-wider font-medium">Total Bets</div>
-            <div className="text-lg font-bold text-transparent bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text">
+          <div className="p-4 text-center border border-white/10 rounded-lg">
+            <div className="text-xs text-white/40 mb-1 uppercase tracking-wider">Total Bets</div>
+            <div className="text-lg font-semibold text-white">
               {token.totalBets || '0'} ETH
             </div>
           </div>
@@ -148,10 +150,10 @@ const BettingModal: React.FC<BettingModalProps> = ({
 
         {/* Current User Bet */}
         {userCurrentBet && parseFloat(userCurrentBet) > 0 && (
-          <div className="premium-glass p-4 mb-6 border-2 border-yellow-400/30">
+          <div className="p-4 mb-6 border border-purple-500/20 rounded-lg bg-purple-500/5">
             <div className="text-center">
-              <div className="text-sm text-white/70 mb-1 uppercase tracking-wider font-medium">Your Current Bet</div>
-              <div className="text-xl font-bold text-transparent bg-gradient-to-r from-yellow-400 to-amber-400 bg-clip-text">
+              <div className="text-xs text-white/40 mb-1 uppercase tracking-wider">Your Current Position</div>
+              <div className="text-xl font-semibold text-white">
                 {parseFloat(userCurrentBet).toFixed(4)} ETH
               </div>
             </div>
@@ -162,12 +164,12 @@ const BettingModal: React.FC<BettingModalProps> = ({
         <div className="space-y-4">
           <div>
             <div className="flex justify-between items-center mb-2">
-              <label className="block text-sm font-medium">
-                베팅 금액 (ETH)
+              <label className="block text-sm font-medium text-white/60">
+                Bet Amount
               </label>
               {balance && (
-                <div className="text-sm text-white/70">
-                  잔액: <span className="font-medium text-cyan-400">{parseFloat(formatEther(balance.value)).toFixed(4)} ETH</span>
+                <div className="text-sm text-white/40">
+                  Balance: <span className="font-medium text-white">{parseFloat(formatEther(balance.value)).toFixed(4)} ETH</span>
                 </div>
               )}
             </div>
@@ -209,14 +211,50 @@ const BettingModal: React.FC<BettingModalProps> = ({
           </div>
 
           <div className="space-y-2 text-sm">
-            {token.totalBets && betAmount && (
+            {totalPool && token.totalBets && betAmount && parseFloat(betAmount) > 0 && (
               <div className="flex justify-between">
-                <span className="text-white/70">예상 배당률</span>
-                <span className="text-green-400">
-                  {token.totalBets !== '0' ? 
-                    (1 / parseFloat(token.totalBets) * (parseFloat(token.totalBets) + parseFloat(betAmount))).toFixed(2) + 'x' : 
-                    'N/A'
-                  }
+                <span className="text-white/60">Expected Multiplier</span>
+                <span className="text-purple-400 font-semibold">
+                  {(() => {
+                    const currentTokenBets = parseFloat(token.totalBets)
+                    const userBet = parseFloat(betAmount)
+                    const currentUserBet = userCurrentBet ? parseFloat(userCurrentBet) : 0
+                    const totalPoolAmount = parseFloat(totalPool)
+                    
+                    // 새로운 베팅 후 해당 토큰의 총 베팅액
+                    const newTokenTotal = currentTokenBets + userBet
+                    // 새로운 베팅 후 전체 풀
+                    const newTotalPool = totalPoolAmount + userBet
+                    
+                    // 예상 배당률 = 전체 풀 / 해당 토큰 베팅액
+                    const expectedMultiplier = newTotalPool / newTokenTotal
+                    
+                    return expectedMultiplier.toFixed(2) + 'x'
+                  })()}
+                </span>
+              </div>
+            )}
+            {totalPool && token.totalBets && betAmount && parseFloat(betAmount) > 0 && (
+              <div className="flex justify-between">
+                <span className="text-white/60">Expected Return</span>
+                <span className="text-purple-300">
+                  {(() => {
+                    const currentTokenBets = parseFloat(token.totalBets)
+                    const userBet = parseFloat(betAmount)
+                    const currentUserBet = userCurrentBet ? parseFloat(userCurrentBet) : 0
+                    const totalPoolAmount = parseFloat(totalPool)
+                    
+                    const newTokenTotal = currentTokenBets + userBet
+                    const newTotalPool = totalPoolAmount + userBet
+                    const totalUserBet = currentUserBet + userBet
+                    
+                    // 사용자의 지분 = (기존 베팅 + 새 베팅) / 토큰 총 베팅
+                    const userShare = totalUserBet / newTokenTotal
+                    // 예상 수익 = 전체 풀 * 사용자 지분
+                    const expectedReturn = newTotalPool * userShare
+                    
+                    return expectedReturn.toFixed(4) + ' ETH'
+                  })()}
                 </span>
               </div>
             )}
@@ -224,9 +262,9 @@ const BettingModal: React.FC<BettingModalProps> = ({
 
           {/* Balance warning */}
           {hasInsufficientBalance && (
-            <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
-              <p className="text-sm text-red-400">
-                ⚠️ 잔액이 부족합니다. 현재 잔액: {balance ? parseFloat(formatEther(balance.value)).toFixed(4) : '0'} ETH
+            <div className="p-3 bg-purple-500/20 border border-purple-500/30 rounded-lg">
+              <p className="text-sm text-purple-300">
+                Insufficient balance. Current: {balance ? parseFloat(formatEther(balance.value)).toFixed(4) : '0'} ETH
               </p>
             </div>
           )}
@@ -239,24 +277,24 @@ const BettingModal: React.FC<BettingModalProps> = ({
             {isPending ? (
               <div className="flex items-center justify-center space-x-2">
                 <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-r-2 border-white border-l-transparent border-b-transparent"></div>
-                <span>지갑 확인 중...</span>
+                <span>Confirming...</span>
               </div>
             ) : isConfirming ? (
               <div className="flex items-center justify-center space-x-2">
                 <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-r-2 border-white border-l-transparent border-b-transparent"></div>
-                <span>트랜잭션 처리 중...</span>
+                <span>Processing...</span>
               </div>
             ) : userCurrentBet && parseFloat(userCurrentBet) > 0 ? (
-              '추가 베팅'
+              'Add to Position'
             ) : (
-              '베팅하기'
+              'Place Bet'
             )}
           </button>
           
           {error && (
-            <div className="mt-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
-              <p className="text-sm text-red-400">
-                베팅 실패: {(error as any)?.shortMessage || error.message}
+            <div className="mt-4 p-3 bg-purple-500/20 border border-purple-500/30 rounded-lg">
+              <p className="text-sm text-purple-300">
+                Error: {(error as any)?.shortMessage || error.message}
               </p>
             </div>
           )}

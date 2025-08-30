@@ -1,6 +1,7 @@
 import React, {useEffect, useMemo, useState} from 'react'
-import {ConnectButton, useConnectModal} from '@rainbow-me/rainbowkit'
+import {useConnectModal} from '@rainbow-me/rainbowkit'
 import {useAccount} from 'wagmi'
+import {CustomConnectButton} from './components/CustomConnectButton'
 import {formatEther} from 'viem'
 import {useRoundFactory} from './hooks/useRoundFactory'
 import {useRound} from './hooks/useRound'
@@ -193,7 +194,7 @@ function App() {
           <div className="premium-glass max-w-7xl mx-auto">
             <div className="flex justify-between items-center p-6">
               <h1 className="blitz-logo">nad.bet</h1>
-              <ConnectButton />
+              <CustomConnectButton />
             </div>
           </div>
         </nav>
@@ -212,11 +213,11 @@ function App() {
             </div>
             
             <div className="premium-glass p-8 max-w-2xl mx-auto">
-              <div className="text-4xl font-bold mb-6 text-transparent bg-gradient-to-r from-purple-400 via-violet-400 to-indigo-400 bg-clip-text">
-                ⏳ Waiting for Next Round
+              <div className="text-4xl font-bold mb-6 text-white">
+                Waiting for next round
               </div>
               <p className="text-xl text-white/80 leading-relaxed">
-                No active round currently. Please wait for the next round to begin.
+                No active round. A new round will begin shortly.
               </p>
             </div>
           </div>
@@ -261,49 +262,68 @@ function App() {
       <div className="floating-particles"></div>
       
       {/* Header */}
-      <nav className="relative z-20 p-6">
-        <div className="premium-glass max-w-7xl mx-auto">
-          <div className="flex justify-between items-center p-6">
-            <div className="flex items-center space-x-6">
-              <h1 className="blitz-logo">nad.bet</h1>
-              {/*<span className="text-sm font-semibold text-cyan-300 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 backdrop-blur-sm px-4 py-2 rounded-full border border-cyan-400/30">*/}
-              {/*  {roundData.roundName}*/}
-              {/*</span>*/}
+      <nav className="relative z-20 p-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="premium-glass backdrop-blur-2xl bg-white/[0.02]">
+            <div className="flex justify-between items-center px-8 py-5">
+              <div className="flex items-center space-x-8">
+                <h1 className="blitz-logo">
+                  nad.bet
+                </h1>
+                <div className="hidden md:flex items-center gap-2">
+                  <div className="h-6 w-px bg-white/20"></div>
+                  <span className="text-sm font-medium text-white/40">Volatility Prediction Market</span>
+                </div>
+              </div>
+              <CustomConnectButton />
             </div>
-            <ConnectButton />
           </div>
         </div>
       </nav>
 
-      {/* Stats Bar */}
-      <div className="relative z-15 px-6 mb-8">
-        <div className="premium-glass p-6 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-            <div className="space-y-2">
-              <div className="text-sm font-medium text-white/60 uppercase tracking-wider">Prize Pool</div>
-              <div className="text-3xl font-bold text-transparent bg-gradient-to-r from-green-400 via-emerald-400 to-cyan-400 bg-clip-text">
-                {parseFloat(roundData.totalPool).toFixed(4)} ETH
+      {/* Minimal Hero Section */}
+      <div className="relative z-15 px-4 mb-8">
+        <div className="max-w-7xl mx-auto text-center py-8">
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
+            Predict the most volatile token.
+          </h1>
+          <p className="text-xl text-white/60 max-w-2xl mx-auto">
+            Bet on which token will have the highest price movement in the next round.
+          </p>
+        </div>
+      </div>
+
+      {/* Minimal Stats */}
+      <div className="relative z-15 px-4 mb-12">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-16">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-white">
+                {parseFloat(roundData.totalPool).toFixed(4)} <span className="text-lg font-normal text-white/40">ETH</span>
               </div>
+              <div className="text-xs text-white/40 uppercase tracking-wider mt-1">Total Pool</div>
             </div>
-            <div className="space-y-2">
-              <div className="text-sm font-medium text-white/60 uppercase tracking-wider">Time Remaining</div>
+            <div className="hidden md:block h-12 w-px bg-white/10"></div>
+            <div className="text-center">
               <CountdownTimer 
                 endTime={roundData.endTime}
                 isFinalized={roundData.isFinalized}
               />
+              <div className="text-xs text-white/40 uppercase tracking-wider mt-1">Time Remaining</div>
             </div>
-            <div className="space-y-2">
-              <div className="text-sm font-medium text-white/60 uppercase tracking-wider">Active Tokens</div>
-              <div className="text-3xl font-bold text-transparent bg-gradient-to-r from-purple-400 via-violet-400 to-indigo-400 bg-clip-text">
+            <div className="hidden md:block h-12 w-px bg-white/10"></div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-white">
                 {gameTokens.length}
               </div>
+              <div className="text-xs text-white/40 uppercase tracking-wider mt-1">Active Tokens</div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Content - 2 Column Layout */}
-      <main className="relative z-10 px-6">
+      <main className="relative z-10 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Side - 3D Isometric Game Grid */}
@@ -324,6 +344,7 @@ function App() {
                           ? 'cube-active'
                           : ''
                       }`}
+                      style={{ '--index': index } as React.CSSProperties}
                       onClick={() => handleTokenClick(token)}
                     >
                       {/* Ultra Optimized Cube - Single face for maximum performance */}
@@ -385,20 +406,20 @@ function App() {
       <div className="relative z-10 text-center max-w-4xl mx-auto px-6 mt-12 mb-8">
         { roundData.isFinalized ? (
           <div className="premium-glass p-8">
-            <div className="text-3xl font-bold mb-6 text-transparent bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 bg-clip-text">
-              🎉 Round Complete!
+            <div className="text-3xl font-bold mb-6 text-white">
+              Round Complete
             </div>
             {roundData.winnerToken ? (
               <div className="space-y-4">
-                <div className="text-2xl font-bold text-transparent bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text">
-                  {roundData.winnerToken} WINS!
+                <div className="text-2xl font-bold text-purple-400">
+                  {roundData.winnerToken} had the highest volatility
                 </div>
                 <p className="text-white/80 text-lg">
-                  Congratulations to all winners! Prizes have been automatically distributed.
+                  Winners have been paid automatically.
                 </p>
               </div>
             ) : (
-              <p className="text-white/70 text-lg">Determining winner...</p>
+              <p className="text-white/70 text-lg">Calculating winner...</p>
             )}
           </div>
         ) : (
@@ -422,6 +443,7 @@ function App() {
         onBet={handleBet}
         userCurrentBet={selectedToken ? userBetMap[selectedToken.address.toLowerCase()] : undefined}
         roundAddress={currentActiveRound}
+        totalPool={roundData?.totalPool}
       />
     </div>
   )

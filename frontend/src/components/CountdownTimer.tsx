@@ -56,14 +56,14 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ endTime, isFinalized, o
 
   if (isExpired) {
     return (
-      <div className="text-2xl font-bold text-red-400">
-        종료됨
+      <div className="text-2xl font-bold text-white/40">
+        Ended
       </div>
     )
   }
 
   return (
-    <div className={`text-2xl font-bold ${isUrgent ? 'text-orange-400 animate-pulse' : 'text-yellow-400'}`}>
+    <div className={`text-3xl font-bold ${isUrgent ? 'text-purple-400 animate-pulse' : 'text-white'}`}>
       {hours !== '00' ? `${hours}:${minutes}:${seconds}` : `${minutes}:${seconds}`}
     </div>
   )
