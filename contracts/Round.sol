@@ -1,51 +1,49 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./interfaces/AggregatorV3Interface.sol";
-
 contract Round {
-    enum BetType {
-        StrongUp,    // +0.02%
-        MediumUp,    // +0.015%
-        WeakUp,      // +0.01%
-        WeakDown,    // -0.01%
-        MediumDown,  // -0.015%
-        StrongDown   // -0.02%
+    struct TokenPrice {
+        address tokenAddress;
+        uint256 currentPrice;
     }
     
     struct Bet {
-        BetType betType;
+        address tokenAddress;
         uint256 amount;
         address bettor;
     }
     
-    AggregatorV3Interface public immutable priceFeed;
     address public immutable factory;
-    uint80 public immutable targetRoundId;
-    int256 public initialPrice;
+    string public roundName;
+    uint256 public immutable startTime;
+    uint256 public immutable duration;
+    uint256 public immutable endTime;
     
-    mapping(BetType => uint256) public totalBetAmounts;
-    mapping(address => mapping(BetType => uint256)) public userBets;
+    mapping(address => uint256) public initialPrices;
+    mapping(address => uint256) public tokenTotalBets;
+    mapping(address => mapping(address => uint256)) public userBets;
+    
+    address[] public registeredTokens;
     Bet[] public bets;
     
+    bool public isActive;
     bool public isFinalized;
-    BetType public winningBetType;
+    address public winningToken;
     uint256 public totalPrizePool;
     uint256 public winningPoolAmount;
     
-    mapping(address => bool) public hasClaimed;
-    
-    event BetPlaced(address indexed bettor, BetType betType, uint256 amount);
-    event RoundFinalized(BetType winningBetType, int256 finalPrice, int256 priceChange);
-    event PrizeClaimed(address indexed winner, uint256 amount);
+    event TokenRegistered(address indexed tokenAddress, uint256 initialPrice);
+    event BetPlaced(address indexed bettor, address indexed tokenAddress, uint256 amount);
+    event RoundFinalized(address indexed winningToken, uint256 winningPercentage);
+    event PrizeDistributed(address indexed winner, uint256 amount);
     
     modifier onlyFactory() {
         require(msg.sender == factory, "Only factory can call");
         _;
     }
     
-    modifier notFinalized() {
-        require(!isFinalized, "Round already finalized");
+    modifier onlyActive() {
+        require(isActive && !isFinalized && block.timestamp <= endTime, "Round not active");
         _;
     }
     
@@ -54,114 +52,161 @@ contract Round {
         _;
     }
     
-    constructor(
-        address _priceFeed,
-        uint80 _targetRoundId
-    ) {
-        priceFeed = AggregatorV3Interface(_priceFeed);
+    constructor(string memory _roundName, uint256 _duration) {
         factory = msg.sender;
-        targetRoundId = _targetRoundId;
-        
-        (, int256 price,,,) = priceFeed.getRoundData(_targetRoundId);
-        initialPrice = price;
+        roundName = _roundName;
+        startTime = block.timestamp;
+        duration = _duration;
+        endTime = block.timestamp + _duration;
+        isActive = true;
     }
     
-    function bet(BetType _betType) external payable notFinalized {
+    function registerToken(address tokenAddress, uint256 initialPrice) external onlyFactory onlyActive {
+        require(initialPrice > 0, "Initial price must be greater than 0");
+        require(initialPrices[tokenAddress] == 0, "Token already registered");
+        
+        initialPrices[tokenAddress] = initialPrice;
+        registeredTokens.push(tokenAddress);
+        
+        emit TokenRegistered(tokenAddress, initialPrice);
+    }
+    
+    function bet(address tokenAddress) external payable onlyActive {
         require(msg.value > 0, "Bet amount must be greater than 0");
+        require(initialPrices[tokenAddress] > 0, "Token not registered");
         
-        (, int256 currentPrice,,,) = priceFeed.latestRoundData();
-        require(currentPrice == initialPrice, "Round has already progressed");
-        
-        userBets[msg.sender][_betType] += msg.value;
-        totalBetAmounts[_betType] += msg.value;
+        userBets[msg.sender][tokenAddress] += msg.value;
+        tokenTotalBets[tokenAddress] += msg.value;
         
         bets.push(Bet({
-            betType: _betType,
+            tokenAddress: tokenAddress,
             amount: msg.value,
             bettor: msg.sender
         }));
         
-        emit BetPlaced(msg.sender, _betType, msg.value);
+        emit BetPlaced(msg.sender, tokenAddress, msg.value);
     }
     
-    function finalize() external onlyFactory notFinalized {
-        (uint80 latestRoundId, int256 finalPrice,,,) = priceFeed.latestRoundData();
-        require(latestRoundId > targetRoundId, "Target round not completed yet");
+    function finalize(TokenPrice[] calldata currentPrices) external onlyFactory {
+        require(isActive && !isFinalized, "Round not active or already finalized");
+        require(block.timestamp >= endTime, "Round not ended yet");
+        require(currentPrices.length == registeredTokens.length, "Invalid price data length");
+        require(registeredTokens.length > 0, "No tokens registered");
         
-        int256 priceChange = finalPrice - initialPrice;
-        int256 changePercentage = (priceChange * 10000) / initialPrice;
+        uint256 maxPercentageIncrease = 0;
+        address bestToken = address(0);
         
-        if (changePercentage >= 20) {
-            winningBetType = BetType.StrongUp;
-        } else if (changePercentage >= 15) {
-            winningBetType = BetType.MediumUp;
-        } else if (changePercentage >= 10) {
-            winningBetType = BetType.WeakUp;
-        } else if (changePercentage <= -20) {
-            winningBetType = BetType.StrongDown;
-        } else if (changePercentage <= -15) {
-            winningBetType = BetType.MediumDown;
-        } else if (changePercentage <= -10) {
-            winningBetType = BetType.WeakDown;
-        } else {
-            revert("No valid winning condition met");
+        for (uint256 i = 0; i < currentPrices.length; i++) {
+            TokenPrice memory priceData = currentPrices[i];
+            require(initialPrices[priceData.tokenAddress] > 0, "Token not registered");
+            
+            uint256 initialPrice = initialPrices[priceData.tokenAddress];
+            if (priceData.currentPrice > initialPrice) {
+                uint256 percentageIncrease = ((priceData.currentPrice - initialPrice) * 10000) / initialPrice;
+                if (percentageIncrease > maxPercentageIncrease) {
+                    maxPercentageIncrease = percentageIncrease;
+                    bestToken = priceData.tokenAddress;
+                }
+            }
         }
         
+        require(bestToken != address(0), "No token had positive performance");
+        
+        winningToken = bestToken;
         isFinalized = true;
         totalPrizePool = address(this).balance;
-        winningPoolAmount = totalBetAmounts[winningBetType];
+        winningPoolAmount = tokenTotalBets[winningToken];
         
-        emit RoundFinalized(winningBetType, finalPrice, priceChange);
+        _distributePrizes();
+        
+        emit RoundFinalized(winningToken, maxPercentageIncrease);
     }
     
-    function claimPrize() external onlyFinalized {
-        require(!hasClaimed[msg.sender], "Prize already claimed");
-        require(userBets[msg.sender][winningBetType] > 0, "No winning bet found");
+    function _distributePrizes() internal {
+        if (winningPoolAmount == 0) return;
         
-        uint256 userWinningBet = userBets[msg.sender][winningBetType];
-        uint256 prizeAmount = (userWinningBet * totalPrizePool) / winningPoolAmount;
-        
-        hasClaimed[msg.sender] = true;
-        
-        (bool success, ) = payable(msg.sender).call{value: prizeAmount}("");
-        require(success, "Prize transfer failed");
-        
-        emit PrizeClaimed(msg.sender, prizeAmount);
-    }
-    
-    function getBetTypeThresholds() external pure returns (int256[6] memory) {
-        return [
-            int256(20),   // StrongUp: +0.02%
-            int256(15),   // MediumUp: +0.015%
-            int256(10),   // WeakUp: +0.01%
-            int256(-10),  // WeakDown: -0.01%
-            int256(-15),  // MediumDown: -0.015%
-            int256(-20)   // StrongDown: -0.02%
-        ];
-    }
-    
-    function getUserBets(address user) external view returns (uint256[6] memory) {
-        uint256[6] memory bets;
-        for (uint256 i = 0; i < 6; i++) {
-            bets[i] = userBets[user][BetType(i)];
+        for (uint256 i = 0; i < bets.length; i++) {
+            Bet memory currentBet = bets[i];
+            if (currentBet.tokenAddress == winningToken) {
+                uint256 userWinningBet = userBets[currentBet.bettor][winningToken];
+                if (userWinningBet > 0) {
+                    uint256 prizeAmount = (userWinningBet * totalPrizePool) / winningPoolAmount;
+                    userBets[currentBet.bettor][winningToken] = 0;
+                    
+                    (bool success, ) = payable(currentBet.bettor).call{value: prizeAmount}("");
+                    if (success) {
+                        emit PrizeDistributed(currentBet.bettor, prizeAmount);
+                    }
+                }
+            }
         }
-        return bets;
     }
     
-    function getTotalBetAmounts() external view returns (uint256[6] memory) {
-        uint256[6] memory amounts;
-        for (uint256 i = 0; i < 6; i++) {
-            amounts[i] = totalBetAmounts[BetType(i)];
-        }
-        return amounts;
+    function getRegisteredTokens() external view returns (address[] memory) {
+        return registeredTokens;
     }
     
-    function getClaimableAmount(address user) external view onlyFinalized returns (uint256) {
-        if (hasClaimed[user] || userBets[user][winningBetType] == 0) {
-            return 0;
-        }
+    function getTokenInfo(address tokenAddress) external view returns (
+        uint256 initialPrice,
+        uint256 totalBets,
+        bool isRegistered
+    ) {
+        initialPrice = initialPrices[tokenAddress];
+        totalBets = tokenTotalBets[tokenAddress];
+        isRegistered = initialPrice > 0;
+    }
+    
+    function getUserBetForToken(address user, address tokenAddress) external view returns (uint256) {
+        return userBets[user][tokenAddress];
+    }
+    
+    function getAllTokenTotalBets() external view returns (address[] memory tokens, uint256[] memory amounts) {
+        tokens = new address[](registeredTokens.length);
+        amounts = new uint256[](registeredTokens.length);
         
-        uint256 userWinningBet = userBets[user][winningBetType];
-        return (userWinningBet * totalPrizePool) / winningPoolAmount;
+        for (uint256 i = 0; i < registeredTokens.length; i++) {
+            tokens[i] = registeredTokens[i];
+            amounts[i] = tokenTotalBets[registeredTokens[i]];
+        }
+    }
+    
+    function getUserTotalBets(address user) external view returns (address[] memory tokens, uint256[] memory amounts) {
+        tokens = new address[](registeredTokens.length);
+        amounts = new uint256[](registeredTokens.length);
+        
+        for (uint256 i = 0; i < registeredTokens.length; i++) {
+            tokens[i] = registeredTokens[i];
+            amounts[i] = userBets[user][registeredTokens[i]];
+        }
+    }
+    
+    function getRoundStats() external view returns (
+        string memory name,
+        bool active,
+        bool finalized,
+        uint256 totalTokens,
+        uint256 totalPool,
+        address winner
+    ) {
+        name = roundName;
+        active = isActive && block.timestamp <= endTime;
+        finalized = isFinalized;
+        totalTokens = registeredTokens.length;
+        totalPool = address(this).balance;
+        winner = winningToken;
+    }
+    
+    function getTimeInfo() external view returns (
+        uint256 _startTime,
+        uint256 _endTime,
+        uint256 _duration,
+        uint256 _timeLeft,
+        bool _hasEnded
+    ) {
+        _startTime = startTime;
+        _endTime = endTime;
+        _duration = duration;
+        _timeLeft = block.timestamp >= endTime ? 0 : endTime - block.timestamp;
+        _hasEnded = block.timestamp >= endTime;
     }
 }
