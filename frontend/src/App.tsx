@@ -39,10 +39,13 @@ function App() {
   const [isBettingModalOpen, setIsBettingModalOpen] = useState(false)
 
   // Factory 데이터 - 항상 호출
-  const { supportedTokens, currentRoundInfo, currentActiveRound, isLoading: factoryLoading } = useRoundFactory()
+  const { supportedTokens, currentRoundInfo, currentActiveRound, previousRound, isLoading: factoryLoading } = useRoundFactory()
 
   // Round 데이터 - 항상 호출 (조건은 hook 내부에서 처리)
   const { registeredTokens, roundStats, timeInfo, tokenBetAmounts, userBets, betsCount, isLoading: roundLoading, refetchAll } = useRound(currentActiveRound)
+
+  // Previous Round 데이터 - waiting 상태일 때만 호출
+  const { roundStats: previousRoundStats } = useRound(previousRound)
 
   // 토큰 데이터 매칭 및 순위 계산 - 항상 호출
   const gameTokens = useMemo(() => {
@@ -187,6 +190,11 @@ function App() {
 
   // 현재 활성 라운드가 없는 경우
   if (!currentActiveRound || currentActiveRound === '0x0000000000000000000000000000000000000000') {
+    // 직전 라운드 winner 정보 계산
+    const previousWinner = previousRoundStats && previousRoundStats[5] !== '0x0000000000000000000000000000000000000000' ? 
+      supportedTokens?.find(token => token.tokenAddress.toLowerCase() === previousRoundStats[5].toLowerCase()) :
+      null
+
     return (
       <div className="min-h-screen overflow-hidden relative">
         <div className="floating-particles"></div>
@@ -213,12 +221,48 @@ function App() {
               </div>
             </div>
             
-            <div className="premium-glass p-8 max-w-2xl mx-auto">
-              <div className="text-4xl font-bold mb-6 text-white">
+            <div className="premium-glass p-8 max-w-2xl mx-auto space-y-6">
+              <div className="text-4xl font-bold text-white">
                 Waiting for next round
               </div>
+              
+              {/* Previous Round Winner */}
+              {previousWinner && (
+                <div className="bg-gradient-to-br from-purple-500/20 to-cyan-500/20 rounded-2xl p-6 border border-purple-500/30">
+                  <div className="text-lg font-medium text-white/80 mb-3">
+                    🏆 Previous Round Winner
+                  </div>
+                  <div className="flex items-center justify-center space-x-4">
+                    <div className="w-16 h-16 flex items-center justify-center">
+                      {getTokenImage(previousWinner.symbol) ? (
+                        <img 
+                          src={getTokenImage(previousWinner.symbol)!} 
+                          alt={previousWinner.symbol}
+                          className="w-16 h-16 rounded-full object-cover border-2 border-purple-400/50 shadow-lg"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-cyan-500 flex items-center justify-center text-2xl font-bold text-white border-2 border-purple-400/50 shadow-lg">
+                          {previousWinner.symbol[0]}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-transparent bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text">
+                        {previousWinner.symbol}
+                      </div>
+                      <div className="text-white/60">
+                        {previousWinner.name}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-sm text-white/60 mt-4">
+                    Had the highest volatility in the last round
+                  </div>
+                </div>
+              )}
+              
               <p className="text-xl text-white/80 leading-relaxed">
-                No active round. A new round will begin shortly.
+                {previousWinner ? 'A new round will begin shortly.' : 'No active round. A new round will begin shortly.'}
               </p>
             </div>
           </div>
@@ -295,33 +339,34 @@ function App() {
       </div>
 
       {/* Stats Bar */}
-        <div className="relative z-15 px-4 mb-12">
-            <div className="max-w-7xl mx-auto">
-                <div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-16">
-                    <div className="text-center">
-                        <div className="text-3xl font-bold text-white">
-                            {parseFloat(roundData.totalPool).toFixed(4)} <span className="text-lg font-normal text-white/40">ETH</span>
-                        </div>
-                        <div className="text-xs text-white/40 uppercase tracking-wider mt-1">Total Pool</div>
-                    </div>
-                    <div className="hidden md:block h-12 w-px bg-white/10"></div>
-                    <div className="text-center">
-                        <CountdownTimer
-                            endTime={roundData.endTime}
-                            isFinalized={roundData.isFinalized}
-                        />
-                        <div className="text-xs text-white/40 uppercase tracking-wider mt-1">Time Remaining</div>
-                    </div>
-                    <div className="hidden md:block h-12 w-px bg-white/10"></div>
-                    <div className="text-center">
-                        <div className="text-3xl font-bold text-white">
-                            {gameTokens.length}
-                        </div>
-                        <div className="text-xs text-white/40 uppercase tracking-wider mt-1">Active Tokens</div>
-                    </div>
-                </div>
+      <div className="relative z-15 px-4 mb-12">
+        <div className="premium-glass p-6 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+            <div className="space-y-2">
+              <div className="text-sm font-medium text-white/60 uppercase tracking-wider">Prize Pool</div>
+              <div className="text-3xl font-bold text-transparent bg-gradient-to-r from-green-400 via-emerald-400 to-cyan-400 bg-clip-text">
+                {parseFloat(roundData.totalPool).toFixed(4)} MON
+              </div>
+              <div className="text-xs text-white/40 uppercase tracking-wider mt-1">Total Pool</div>
             </div>
+            <div className="hidden md:block h-12 w-px bg-white/10"></div>
+            <div className="text-center">
+              <CountdownTimer 
+                endTime={roundData.endTime}
+                isFinalized={roundData.isFinalized}
+              />
+              <div className="text-xs text-white/40 uppercase tracking-wider mt-1">Time Remaining</div>
+            </div>
+            <div className="hidden md:block h-12 w-px bg-white/10"></div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-white">
+                {gameTokens.length}
+              </div>
+              <div className="text-xs text-white/40 uppercase tracking-wider mt-1">Active Tokens</div>
+            </div>
+          </div>
         </div>
+      </div>
 
       {/* Main Content - 2 Column Layout */}
       <main className="relative z-10 px-4">

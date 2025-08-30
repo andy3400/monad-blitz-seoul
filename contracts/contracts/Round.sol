@@ -97,7 +97,7 @@ contract Round {
     
     function finalize(TokenPrice[] calldata currentPrices) external onlyFactory {
         require(isActive && !isFinalized, "Round not active or already finalized");
-        require(block.timestamp >= endTime, "Round not ended yet");
+        // require(block.timestamp >= endTime, "Round not ended yet");
         require(currentPrices.length == registeredTokens.length, "Invalid price data length");
         
         uint256 maxPercentageIncrease = 0;

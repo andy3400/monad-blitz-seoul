@@ -47,6 +47,13 @@ const ROUND_FACTORY_ABI = [
     "outputs": [{"name": "", "type": "address"}],
     "stateMutability": "view",
     "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getPreviousRound",
+    "outputs": [{"name": "", "type": "address"}],
+    "stateMutability": "view",
+    "type": "function"
   }
 ] as const
 
@@ -69,6 +76,12 @@ export function useRoundFactory() {
     functionName: 'currentActiveRound',
   })
 
+  const { data: previousRound } = useReadContract({
+    address: CONTRACT_ADDRESSES.ROUND_FACTORY as `0x${string}`,
+    abi: ROUND_FACTORY_ABI,
+    functionName: 'getPreviousRound',
+  })
+
   return {
     supportedTokens: supportedTokens as Array<{
       tokenAddress: string
@@ -79,6 +92,7 @@ export function useRoundFactory() {
     }> | undefined,
     currentRoundInfo: currentRoundInfo as [string, string, boolean, bigint, bigint] | undefined,
     currentActiveRound: currentActiveRound as string | undefined,
+    previousRound: previousRound as string | undefined,
     isLoading: tokensLoading || roundInfoLoading,
   }
 }

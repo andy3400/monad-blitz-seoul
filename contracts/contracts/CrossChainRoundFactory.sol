@@ -245,8 +245,8 @@ contract CrossChainRoundFactory is CCIPReceiver {
         Round round = Round(roundAddress);
         require(round.isActive() && !round.isFinalized(), "Round not active");
         
-        (, , , , bool hasEnded) = round.getTimeInfo();
-        require(hasEnded, "Round time not ended yet");
+        // (, , , , bool hasEnded) = round.getTimeInfo();
+        // require(hasEnded, "Round time not ended yet");
         
         // 라운드 종료
         round.finalize(currentPrices);
