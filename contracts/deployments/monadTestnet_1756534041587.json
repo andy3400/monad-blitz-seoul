@@ -1,0 +1,49 @@
+{
+  "network": "monadTestnet",
+  "deployer": "0x481C6192D483409eC2220e579938c61c12cFB402",
+  "contracts": {
+    "RoundFactory": {
+      "address": "0xfc0487679eb163f31fD5a94C84285E28dE55d35F",
+      "owner": "0x481C6192D483409eC2220e579938c61c12cFB402"
+    }
+  },
+  "supportedTokens": [
+    {
+      "address": "0x0000000000000000000000000000000000000001",
+      "symbol": "BTC",
+      "name": "Bitcoin",
+      "initialPrice": "108492150000000000000000",
+      "priceUSD": "108492.15"
+    },
+    {
+      "address": "0x0000000000000000000000000000000000000002",
+      "symbol": "ETH",
+      "name": "Ethereum",
+      "initialPrice": "4383870000000000000000",
+      "priceUSD": "4383.87"
+    },
+    {
+      "address": "0x0000000000000000000000000000000000000003",
+      "symbol": "SOL",
+      "name": "Solana",
+      "initialPrice": "205990000000000000000",
+      "priceUSD": "205.99"
+    },
+    {
+      "address": "0x0000000000000000000000000000000000000004",
+      "symbol": "DOGE",
+      "name": "DogeCoin",
+      "initialPrice": "216530000000000000",
+      "priceUSD": "0.21653"
+    },
+    {
+      "address": "0x0000000000000000000000000000000000000005",
+      "symbol": "PEPE",
+      "name": "Pepe",
+      "initialPrice": "9980000000000",
+      "priceUSD": "0.00000998"
+    }
+  ],
+  "timestamp": "2025-08-30T06:07:21.544Z",
+  "blockNumber": 33954545
+}

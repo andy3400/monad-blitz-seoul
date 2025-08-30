@@ -1,0 +1,29 @@
+{
+  "network": "monadTestnet",
+  "deployer": "0x481C6192D483409eC2220e579938c61c12cFB402",
+  "contracts": {
+    "RoundFactory": {
+      "address": "0x77a3173dB758E92C39B7c572Cc81c2500ae5617b",
+      "owner": "0x481C6192D483409eC2220e579938c61c12cFB402"
+    }
+  },
+  "supportedTokens": [
+    {
+      "address": "0x0000000000000000000000000000000000000001",
+      "symbol": "BTC",
+      "name": "Bitcoin"
+    },
+    {
+      "address": "0x0000000000000000000000000000000000000002",
+      "symbol": "ETH",
+      "name": "Ethereum"
+    },
+    {
+      "address": "0x0000000000000000000000000000000000000003",
+      "symbol": "SOL",
+      "name": "Solana"
+    }
+  ],
+  "timestamp": "2025-08-30T05:30:31.139Z",
+  "blockNumber": 33949236
+}

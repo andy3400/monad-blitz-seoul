@@ -1,0 +1,34 @@
+{
+  "network": "sepolia",
+  "deployer": "0x481C6192D483409eC2220e579938c61c12cFB402",
+  "role": "CCIP Message Sender",
+  "contracts": {
+    "CrossChainPriceFeeder": {
+      "address": "0x1595ce46B0C434229c7fe65d2F899BD3e324f7f3",
+      "owner": "0x481C6192D483409eC2220e579938c61c12cFB402",
+      "ccipRouter": "0x0BF3dE8c5D3e8A2B34D2BEeB17ABfCeBaf363A59",
+      "linkToken": "0x779877A7B0D9E8603169DdbD7836e478b4624789",
+      "sepoliaSelector": "16015286601757825753",
+      "monadSelector": "2183018362218727504"
+    }
+  },
+  "supportedTokens": [
+    {
+      "address": "0x0000000000000000000000000000000000000011",
+      "symbol": "WBTC",
+      "name": "Wrapped Bitcoin",
+      "initialPrice": "108787220000000000000000",
+      "priceUSD": "108787.22"
+    }
+  ],
+  "destinationChains": [
+    {
+      "chainSelector": "2183018362218727504",
+      "chainName": "Monad Testnet",
+      "contractAddress": "0x5b690B1b327e781B9b637dBb6a8DD842baB4d6a0",
+      "enabled": true
+    }
+  ],
+  "timestamp": "2025-08-30T08:25:07.706Z",
+  "blockNumber": 9095146
+}

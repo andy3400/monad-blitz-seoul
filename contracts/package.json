@@ -1,0 +1,36 @@
+{
+  "name": "contracts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "hardhat test",
+    "compile": "hardhat compile",
+    "deploy:localhost": "hardhat run scripts/deploy.js --network localhost",
+    "deploy:monad": "hardhat run scripts/deploy.js --network monad",
+    "deploy:monad-testnet": "hardhat run scripts/deploy.js --network monadTestnet",
+    "verify": "hardhat verify --network",
+    "admin": "node admin-cli.js",
+    "round:create": "hardhat run scripts/createRound.js --network monadTestnet",
+    "round:finalize": "hardhat run scripts/finalizeRound.js --network monadTestnet",
+    "round:status": "hardhat run scripts/roundStatus.js --network monadTestnet",
+    "deploy:crosschain-monad": "hardhat run scripts/deployCrossChain.js --network monadTestnet",
+    "deploy:pricefeeder-sepolia": "hardhat run scripts/deployCrossChainPriceFeeder.js --network sepolia",
+    "bridge:sepolia-to-monad": "hardhat run scripts/bridgeToMonad.js --network sepolia",
+    "update-and-send": "hardhat run scripts/updateAndSend.js --network sepolia"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "dotenv": "^16.3.1",
+    "hardhat": "^2.19.0"
+  },
+  "dependencies": {
+    "@chainlink/contracts-ccip": "^1.6.0",
+    "@openzeppelin/contracts": "^5.4.0",
+    "axios": "^1.11.0",
+    "commander": "^9.4.1"
+  }
+}
