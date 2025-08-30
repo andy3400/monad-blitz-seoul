@@ -305,7 +305,7 @@ const BettingModal: React.FC<BettingModalProps> = ({
                       // 예상 수익 = 전체 풀 * 사용자 지분
                       const expectedReturn = newTotalPool * userShare;
 
-                      return expectedReturn.toFixed(4) + ' ETH';
+                      return expectedReturn.toFixed(4) + ' MON';
                     })()}
                   </span>
                 </div>
