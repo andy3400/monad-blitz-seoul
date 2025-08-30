@@ -63,26 +63,38 @@ contracts/
 
 ```solidity
 // 지원 토큰 추가 (Owner만)
-function addSupportedToken(address tokenAddress, string symbol, string name) external
-
-// 라운드 생성 (Owner만)
-function createRound(string roundName, uint256 duration) external returns (address)
-
-// 라운드에 토큰 등록 (Owner만)
-function registerTokensInRound(
-    address roundAddress,
-    address[] tokenAddresses,
-    uint256[] initialPrices
+function addSupportedToken(
+    address tokenAddress, 
+    string symbol, 
+    string name,
+    uint256 initialPrice
 ) external
 
-// 라운드 종료 및 정산 (Owner만)
+// 토큰 가격 업데이트 (Owner만)
+function updateTokenPrices(
+    address[] tokenAddresses,
+    uint256[] newPrices
+) external
+
+// 라운드 생성 (Owner만) - 토큰과 가격 자동 설정
+function createRound(
+    string roundName, 
+    uint256 duration,
+    address[] participatingTokens
+) external returns (address)
+
+// 라운드 종료 및 정산 (Owner만) - 토큰 가격도 동시 업데이트
 function finalizeRound(
     address roundAddress,
     TokenPrice[] currentPrices
 ) external
 
-// 지원 토큰 목록 조회
+// 지원 토큰 목록 조회 (가격 포함)
 function getSupportedTokens() external view returns (TokenInfo[] memory)
+
+// 토큰 가격 조회
+function getTokenPrice(address tokenAddress) external view returns (uint256)
+function getTokenPrices(address[] tokenAddresses) external view returns (uint256[] memory)
 
 // 현재 라운드 정보
 function getCurrentRoundInfo() external view returns (
@@ -140,18 +152,15 @@ function getRoundStats() external view returns (
 
 ### 1. 라운드 설정 (Owner)
 ```javascript
-// 지원 토큰 추가
-await factory.addSupportedToken("0x123...", "BTC", "Bitcoin")
-await factory.addSupportedToken("0x456...", "ETH", "Ethereum")
+// 지원 토큰 추가 (초기 가격과 함께)
+await factory.addSupportedToken("0x123...", "BTC", "Bitcoin", 65000000000)
+await factory.addSupportedToken("0x456...", "ETH", "Ethereum", 2500000000)
 
-// 1시간 라운드 생성
-const roundAddress = await factory.createRound("Morning Battle", 3600)
-
-// 토큰들을 라운드에 등록 (초기 가격과 함께)
-await factory.registerTokensInRound(
-    roundAddress,
-    ["0x123...", "0x456..."],
-    [65000000000, 2500000000] // 가격은 wei 단위
+// 1시간 라운드 생성 (참여 토큰들과 현재 가격을 자동으로 설정)
+const roundAddress = await factory.createRound(
+    "Morning Battle",
+    3600, // duration in seconds
+    ["0x123...", "0x456..."] // participating tokens
 )
 ```
 
@@ -174,8 +183,11 @@ const finalPrices = [
     { tokenAddress: "0x456...", currentPrice: 2525000000 }   // ETH +1%
 ]
 
-// BTC가 승리 토큰이 되고 BTC 베터들에게 자동으로 상금 분배
+// Factory에서 토큰 가격 업데이트 + 라운드 종료 + 승자에게 상금 자동 분배
 await factory.finalizeRound(roundAddress, finalPrices)
+
+// Factory의 토큰 가격들도 자동으로 업데이트됨
+console.log(await factory.getTokenPrice("0x123...")) // 66300000000 (새로운 BTC 가격)
 ```
 
 ## 🔐 보안 고려사항

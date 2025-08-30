@@ -25,7 +25,7 @@ export const monadTestnet = defineChain({
 
 export const config = getDefaultConfig({
   appName: 'Monad Blitz',
-  projectId: process.env.VITE_WALLETCONNECT_PROJECT_ID || 'your-project-id',
+  projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'default-project-id',
   chains: [monadTestnet],
   ssr: false,
 })
