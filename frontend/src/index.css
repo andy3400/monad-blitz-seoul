@@ -357,8 +357,8 @@
 }
 
 .isometric-cube {
-  width: 120px;
-  height: 120px;
+  width: 100px;
+  height: 100px;
   position: relative;
   transform-style: preserve-3d;
   transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -374,8 +374,8 @@
 
 .cube-face {
   position: absolute;
-  width: 120px;
-  height: 120px;
+  width: 100px;
+  height: 100px;
   background: linear-gradient(135deg, rgba(183, 148, 246, 0.25) 0%, rgba(99, 179, 237, 0.25) 100%);
   backdrop-filter: blur(15px) saturate(150%);
   border: 1px solid rgba(255, 255, 255, 0.25);

@@ -5,6 +5,7 @@ import {formatEther} from 'viem'
 import {useRoundFactory} from './hooks/useRoundFactory'
 import {useRound} from './hooks/useRound'
 import BettingModal from './components/BettingModal'
+import BetsList from './components/BetsList'
 import CountdownTimer from './components/CountdownTimer'
 import {CONTRACT_ADDRESSES, type TokenInfo} from './config/contracts'
 
@@ -17,7 +18,7 @@ function App() {
   const { supportedTokens, currentRoundInfo, currentActiveRound, isLoading: factoryLoading } = useRoundFactory()
 
   // Round 데이터 - 항상 호출 (조건은 hook 내부에서 처리)
-  const { registeredTokens, roundStats, timeInfo, tokenBetAmounts, userBets } = useRound(currentActiveRound)
+  const { registeredTokens, roundStats, timeInfo, tokenBetAmounts, userBets, betsCount, refetchAll } = useRound(currentActiveRound)
 
   // 토큰 데이터 매칭 - 항상 호출
   const gameTokens = useMemo(() => {
@@ -192,9 +193,10 @@ function App() {
     setIsBettingModalOpen(true)
   }
 
-  const handleBet = (amount: string) => {
-    // TODO: 실제 베팅 트랜잭션 구현
-    console.log('Betting', amount, 'ETH on', selectedToken?.symbol)
+  const handleBet = async (amount: string) => {
+    // 베팅 완료 후 데이터 새로고침
+    console.log('Bet completed:', amount, 'ETH on', selectedToken?.symbol)
+    await refetchAll?.()
   }
 
   if (!roundData) {
@@ -253,44 +255,62 @@ function App() {
         </div>
       </div>
 
-      {/* 3D Isometric Game Grid */}
-      <main className="relative z-10 flex flex-col items-center justify-center px-6">
-        <div className="isometric-scene">
-          <div className="isometric-container" style={{animation: 'isometric-float 10s ease-in-out infinite'}}>
-            {gridTokens.map((token, index) => (
-              <div
-                key={index}
-                className={`isometric-cube ${
-                  token ? '' : 'opacity-30'
-                } ${
-                  token && userBetMap[token.address.toLowerCase()] 
-                    ? 'cube-selected' 
-                    : ''
-                } ${
-                  roundData.winnerToken && token?.symbol === roundData.winnerToken
-                    ? 'cube-active'
-                    : ''
-                }`}
-                onClick={() => handleTokenClick(token)}
-              >
-                {/* Optimized Cube - Only 3 faces for performance */}
-                <div className="cube-face front">
-                  {token && (
-                    <div className="token-content">
-                      <div className="token-logo">{token.logo}</div>
-                      <div className="token-symbol">{token.symbol}</div>
-                      {userBetMap[token.address.toLowerCase()] && (
-                        <div className="bet-amount">
-                          {parseFloat(userBetMap[token.address.toLowerCase()]).toFixed(3)} ETH
-                        </div>
-                      )}
+      {/* Main Content - 2 Column Layout */}
+      <main className="relative z-10 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Side - 3D Isometric Game Grid */}
+            <div className="lg:col-span-2 flex flex-col items-center justify-center">
+              <div className="isometric-scene">
+                <div className="isometric-container" style={{animation: 'isometric-float 10s ease-in-out infinite'}}>
+                  {gridTokens.map((token, index) => (
+                    <div
+                      key={index}
+                      className={`isometric-cube ${
+                        token ? '' : 'opacity-30'
+                      } ${
+                        token && userBetMap[token.address.toLowerCase()] 
+                          ? 'cube-selected' 
+                          : ''
+                      } ${
+                        roundData.winnerToken && token?.symbol === roundData.winnerToken
+                          ? 'cube-active'
+                          : ''
+                      }`}
+                      onClick={() => handleTokenClick(token)}
+                    >
+                      {/* Optimized Cube - Only 3 faces for performance */}
+                      <div className="cube-face front">
+                        {token && (
+                          <div className="token-content">
+                            <div className="token-logo">{token.logo}</div>
+                            <div className="token-symbol">{token.symbol}</div>
+                            {userBetMap[token.address.toLowerCase()] && (
+                              <div className="bet-amount">
+                                {parseFloat(userBetMap[token.address.toLowerCase()]).toFixed(3)} ETH
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <div className="cube-face right"></div>
+                      <div className="cube-face top"></div>
                     </div>
-                  )}
+                  ))}
                 </div>
-                <div className="cube-face right"></div>
-                <div className="cube-face top"></div>
               </div>
-            ))}
+            </div>
+
+            {/* Right Side - Betting Statistics */}
+            <div className="lg:col-span-1">
+              <BetsList
+                roundAddress={currentActiveRound}
+                supportedTokens={supportedTokens}
+                userBets={userBets}
+                tokenBetAmounts={tokenBetAmounts}
+                totalBetsCount={betsCount ? Number(betsCount) : 0}
+              />
+            </div>
           </div>
         </div>
       </main>
@@ -325,14 +345,15 @@ function App() {
             )}
           </div>
         ) : (
-          <div className="premium-glass p-8">
-            <div className="text-2xl font-bold mb-4 text-transparent bg-gradient-to-r from-purple-400 via-violet-400 to-indigo-400 bg-clip-text">
-              ⚡ Choose Your Token
-            </div>
-            <p className="text-white/80 text-lg leading-relaxed">
-              Select the token you believe will have the highest price increase during this round
-            </p>
-          </div>
+            null
+          // <div className="premium-glass p-8">
+          //   <div className="text-2xl font-bold mb-4 text-transparent bg-gradient-to-r from-purple-400 via-violet-400 to-indigo-400 bg-clip-text">
+          //     ⚡ Choose Your Token
+          //   </div>
+          //   <p className="text-white/80 text-lg leading-relaxed">
+          //     Select the token you believe will have the highest price increase during this round
+          //   </p>
+          // </div>
         )}
       </div>
 
@@ -343,6 +364,7 @@ function App() {
         token={selectedToken}
         onBet={handleBet}
         userCurrentBet={selectedToken ? userBetMap[selectedToken.address.toLowerCase()] : undefined}
+        roundAddress={currentActiveRound}
       />
     </div>
   )

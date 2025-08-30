@@ -259,4 +259,8 @@ contract Round {
             betAmounts[i] = tokenTotalBets[registeredTokens[i]];
         }
     }
+    
+    function getBetsCount() external view returns (uint256) {
+        return bets.length;
+    }
 }

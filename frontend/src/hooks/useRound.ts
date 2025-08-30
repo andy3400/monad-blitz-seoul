@@ -1,7 +1,14 @@
 import { useReadContract, useReadContracts } from 'wagmi'
 import { useAccount } from 'wagmi'
 
-const ROUND_ABI = [
+export const ROUND_ABI = [
+  {
+    "inputs": [{"name": "tokenAddress", "type": "address"}],
+    "name": "bet",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
   {
     "inputs": [],
     "name": "getRegisteredTokens",
@@ -66,41 +73,59 @@ const ROUND_ABI = [
     ],
     "stateMutability": "view",
     "type": "function"
+  },
+  {
+    "inputs": [{"name": "", "type": "uint256"}],
+    "name": "bets",
+    "outputs": [
+      {"name": "tokenAddress", "type": "address"},
+      {"name": "amount", "type": "uint256"},
+      {"name": "bettor", "type": "address"}
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getBetsCount",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
   }
 ] as const
 
 export function useRound(roundAddress?: string) {
   const { address: userAddress } = useAccount()
 
-  const { data: registeredTokens } = useReadContract({
+  const { data: registeredTokens, refetch: refetchTokens } = useReadContract({
     address: roundAddress as `0x${string}`,
     abi: ROUND_ABI,
     functionName: 'getRegisteredTokens',
     query: { enabled: !!roundAddress }
   })
 
-  const { data: roundStats } = useReadContract({
+  const { data: roundStats, refetch: refetchStats } = useReadContract({
     address: roundAddress as `0x${string}`,
     abi: ROUND_ABI,
     functionName: 'getRoundStats',
     query: { enabled: !!roundAddress }
   })
 
-  const { data: timeInfo } = useReadContract({
+  const { data: timeInfo, refetch: refetchTime } = useReadContract({
     address: roundAddress as `0x${string}`,
     abi: ROUND_ABI,
     functionName: 'getTimeInfo',
     query: { enabled: !!roundAddress }
   })
 
-  const { data: tokenBetAmounts } = useReadContract({
+  const { data: tokenBetAmounts, refetch: refetchTokenBets } = useReadContract({
     address: roundAddress as `0x${string}`,
     abi: ROUND_ABI,
     functionName: 'getAllTokenTotalBets',
     query: { enabled: !!roundAddress }
   })
 
-  const { data: userBets } = useReadContract({
+  const { data: userBets, refetch: refetchUserBets } = useReadContract({
     address: roundAddress as `0x${string}`,
     abi: ROUND_ABI,
     functionName: 'getUserTotalBets',
@@ -108,11 +133,31 @@ export function useRound(roundAddress?: string) {
     query: { enabled: !!roundAddress && !!userAddress }
   })
 
+  const { data: betsCount, refetch: refetchBetsCount } = useReadContract({
+    address: roundAddress as `0x${string}`,
+    abi: ROUND_ABI,
+    functionName: 'getBetsCount',
+    query: { enabled: !!roundAddress }
+  })
+
+  const refetchAll = async () => {
+    await Promise.all([
+      refetchTokens(),
+      refetchStats(), 
+      refetchTime(),
+      refetchTokenBets(),
+      refetchUserBets(),
+      refetchBetsCount()
+    ])
+  }
+
   return {
     registeredTokens: registeredTokens as string[] | undefined,
     roundStats: roundStats as [string, boolean, boolean, bigint, bigint, string] | undefined,
     timeInfo: timeInfo as [bigint, bigint, bigint, bigint, boolean] | undefined,
     tokenBetAmounts: tokenBetAmounts as [string[], bigint[]] | undefined,
     userBets: userBets as [string[], bigint[]] | undefined,
+    betsCount: betsCount as bigint | undefined,
+    refetchAll,
   }
 }

@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
-import { formatEther } from 'viem'
+import { formatEther, parseEther } from 'viem'
+import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
+import { ROUND_ABI } from '../hooks/useRound'
 import type { TokenInfo } from '../config/contracts'
 
 interface BettingModalProps {
@@ -8,6 +10,7 @@ interface BettingModalProps {
   token: TokenInfo | null
   onBet: (amount: string) => void
   userCurrentBet?: string
+  roundAddress?: string
 }
 
 const BettingModal: React.FC<BettingModalProps> = ({ 
@@ -15,17 +18,42 @@ const BettingModal: React.FC<BettingModalProps> = ({
   onClose, 
   token, 
   onBet, 
-  userCurrentBet 
+  userCurrentBet,
+  roundAddress
 }) => {
   const [betAmount, setBetAmount] = useState('')
 
-  if (!isOpen || !token) return null
+  const { writeContract, data: hash, error, isPending } = useWriteContract()
+  
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+    hash,
+  })
 
-  const handleBet = () => {
-    if (betAmount && parseFloat(betAmount) > 0) {
-      onBet(betAmount)
+  // 트랜잭션이 확인되면 모달 닫기 - 항상 호출
+  React.useEffect(() => {
+    if (isConfirmed && isOpen && token) {
+      onBet(betAmount) // 부모 컴포넌트에 알림 (데이터 새로고침용)
       setBetAmount('')
       onClose()
+    }
+  }, [isConfirmed, betAmount, onBet, onClose, isOpen, token])
+
+  // 조건부 렌더링
+  if (!isOpen || !token) return null
+
+  const handleBet = async () => {
+    if (!betAmount || parseFloat(betAmount) <= 0 || !roundAddress) return
+    
+    try {
+      await writeContract({
+        address: roundAddress as `0x${string}`,
+        abi: ROUND_ABI,
+        functionName: 'bet',
+        args: [token.address as `0x${string}`],
+        value: parseEther(betAmount),
+      })
+    } catch (err) {
+      console.error('Betting failed:', err)
     }
   }
 
@@ -118,14 +146,6 @@ const BettingModal: React.FC<BettingModalProps> = ({
           </div>
 
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-white/70">네트워크 수수료</span>
-              <span className="text-yellow-400">가변</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-white/70">게임 수수료</span>
-              <span className="text-green-400">0%</span>
-            </div>
             {token.totalBets && betAmount && (
               <div className="flex justify-between">
                 <span className="text-white/70">예상 배당률</span>
@@ -141,11 +161,33 @@ const BettingModal: React.FC<BettingModalProps> = ({
 
           <button 
             onClick={handleBet}
-            disabled={!betAmount || parseFloat(betAmount) <= 0}
+            disabled={!betAmount || parseFloat(betAmount) <= 0 || isPending || isConfirming}
             className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {userCurrentBet && parseFloat(userCurrentBet) > 0 ? '추가 베팅' : '베팅하기'}
+            {isPending ? (
+              <div className="flex items-center justify-center space-x-2">
+                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-r-2 border-white border-l-transparent border-b-transparent"></div>
+                <span>지갑 확인 중...</span>
+              </div>
+            ) : isConfirming ? (
+              <div className="flex items-center justify-center space-x-2">
+                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-r-2 border-white border-l-transparent border-b-transparent"></div>
+                <span>트랜잭션 처리 중...</span>
+              </div>
+            ) : userCurrentBet && parseFloat(userCurrentBet) > 0 ? (
+              '추가 베팅'
+            ) : (
+              '베팅하기'
+            )}
           </button>
+          
+          {error && (
+            <div className="mt-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
+              <p className="text-sm text-red-400">
+                베팅 실패: {(error as any)?.shortMessage || error.message}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
