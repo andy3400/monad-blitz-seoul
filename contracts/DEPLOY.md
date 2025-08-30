@@ -82,19 +82,32 @@ npm run round:status <FACTORY_ADDRESS>
 ```
 
 ### 2. 새 라운드 생성 (현재 가격으로 자동 설정)
+
+**방법 1: 환경 변수로 직접 실행**
 ```bash
-npm run round:create <FACTORY_ADDRESS> "Morning Battle" 3600 BTC ETH SOL
+FACTORY_ADDRESS=0x... ROUND_NAME="Morning Battle" DURATION=3600 TOKENS="BTC ETH SOL" npm run round:create
 ```
 
-**파라미터 설명:**
-- `FACTORY_ADDRESS`: 배포된 RoundFactory 컨트랙트 주소
-- `"Morning Battle"`: 라운드 이름 (따옴표 필수)
-- `3600`: 지속 시간 (초 단위, 3600 = 1시간)
-- `BTC ETH SOL`: 참여할 토큰 심볼들 (공백으로 구분)
-
-### 3. 라운드 종료 및 정산
+**방법 2: .env 파일에 설정 후 실행**
 ```bash
-npm run round:finalize <FACTORY_ADDRESS> <ROUND_ADDRESS> BTC ETH SOL
+# .env 파일에 다음 내용 추가
+FACTORY_ADDRESS=0x배포된_팩토리_주소
+ROUND_NAME="Morning Battle"
+DURATION=3600
+TOKENS="BTC ETH SOL DOGE PEPE"
+
+# 실행
+npm run round:create
+```
+
+### 3. 라운드 상태 확인
+```bash
+FACTORY_ADDRESS=0x... npm run round:status
+```
+
+### 4. 라운드 종료 및 정산
+```bash
+FACTORY_ADDRESS=0x... ROUND_ADDRESS=0x... TOKENS="BTC ETH SOL" npm run round:finalize
 ```
 
 **자동 실행되는 작업:**

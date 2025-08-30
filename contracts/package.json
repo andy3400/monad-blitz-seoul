@@ -10,9 +10,9 @@
     "deploy:monad": "hardhat run scripts/deploy.js --network monad",
     "deploy:monad-testnet": "hardhat run scripts/deploy.js --network monadTestnet",
     "verify": "hardhat verify --network",
-    "round:create": "hardhat run scripts/manageRound.js --network monadTestnet -- create",
-    "round:finalize": "hardhat run scripts/manageRound.js --network monadTestnet -- finalize",
-    "round:status": "hardhat run scripts/manageRound.js --network monadTestnet -- status"
+    "round:create": "hardhat run scripts/createRound.js --network monadTestnet",
+    "round:finalize": "hardhat run scripts/finalizeRound.js --network monadTestnet",
+    "round:status": "hardhat run scripts/roundStatus.js --network monadTestnet"
   },
   "keywords": [],
   "author": "",

@@ -76,6 +76,20 @@
       inset 0 1px 0 rgba(255, 255, 255, 0.3);
   }
   
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    @apply text-white font-medium py-2 px-4 rounded-xl transition-all duration-300;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+  
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  }
+  
   .cube-container {
     perspective: 1000px;
     width: 120px;
@@ -192,5 +206,86 @@
   100% {
     transform: translateY(-100px) rotate(360deg);
     opacity: 0;
+  }
+}
+
+/* 3x3 Grid Styles */
+.logo-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  position: relative;
+  transform: rotate(45deg);
+  filter: drop-shadow(0 0 10px rgba(110, 68, 255, 0.5));
+}
+
+.tile {
+  width: 80px;
+  height: 80px;
+  background: rgba(110, 68, 255, 0.2);
+  border-radius: 12px;
+  border: 2px solid rgba(110, 68, 255, 0.4);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
+  animation: pulse-glow 3s infinite ease-in-out;
+  position: relative;
+  transform: rotate(-45deg);
+}
+
+.tile:hover {
+  box-shadow: 0 0 20px rgba(110, 68, 255, 0.8), 0 0 40px rgba(110, 68, 255, 0.6);
+}
+
+.tile:nth-child(5n), .tile:nth-child(7n) {
+  animation-delay: 0.5s;
+}
+
+.tile:nth-child(3n), .tile:nth-child(11n) {
+  animation-delay: 1s;
+}
+
+.tile.winner {
+  animation: winner-spin 1s ease-in-out forwards, winning-glow 1s infinite alternate;
+}
+
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 10px rgba(110, 68, 255, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(110, 68, 255, 0.8), 0 0 30px rgba(110, 68, 255, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 10px rgba(110, 68, 255, 0.4);
+  }
+}
+
+@keyframes winner-spin {
+  0% {
+    transform: rotate(-45deg) rotateY(0deg);
+  }
+  100% {
+    transform: rotate(-45deg) rotateY(360deg);
+  }
+}
+
+@keyframes winning-glow {
+  0% {
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 20px #fff, 0 0 40px #fff, 0 0 60px #fff;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
   }
 }

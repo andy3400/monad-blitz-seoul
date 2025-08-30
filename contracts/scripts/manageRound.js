@@ -2,15 +2,16 @@ const { ethers } = require("hardhat");
 const { createTokenPriceArray, getMultipleTokenPrices } = require("./priceUtils");
 
 async function main() {
-    // 명령어 인수 파싱
+    // 환경 변수나 프로세스 argv에서 명령어와 인수 파싱
     const args = process.argv.slice(2);
-    const command = args[0];
+    const command = process.env.ROUND_COMMAND || args[0];
     
     if (!command) {
+        console.log("환경 변수 ROUND_COMMAND를 설정하거나 직접 인수를 전달하세요.");
         console.log("사용법:");
-        console.log("npm run round:create <factory_address> <round_name> <duration_seconds> <token_symbols>");
-        console.log("npm run round:finalize <factory_address> <round_address> <token_symbols>");
-        console.log("npm run round:status <factory_address>");
+        console.log("ROUND_COMMAND=create npm run round:create <factory_address> <round_name> <duration_seconds> <token_symbols>");
+        console.log("ROUND_COMMAND=finalize npm run round:finalize <factory_address> <round_address> <token_symbols>");
+        console.log("ROUND_COMMAND=status npm run round:status <factory_address>");
         return;
     }
 
@@ -18,15 +19,22 @@ async function main() {
     console.log("실행 계정:", deployer.address);
 
     try {
+        let commandArgs;
+        if (process.env.ROUND_COMMAND) {
+            commandArgs = args; // 환경 변수를 사용하면 모든 args를 사용
+        } else {
+            commandArgs = args.slice(1); // 직접 전달시 첫 번째 arg(명령어) 제외
+        }
+
         switch (command) {
             case 'create':
-                await createRound(args.slice(1));
+                await createRound(commandArgs);
                 break;
             case 'finalize':
-                await finalizeRound(args.slice(1));
+                await finalizeRound(commandArgs);
                 break;
             case 'status':
-                await getRoundStatus(args.slice(1));
+                await getRoundStatus(commandArgs);
                 break;
             default:
                 console.error("알 수 없는 명령어:", command);

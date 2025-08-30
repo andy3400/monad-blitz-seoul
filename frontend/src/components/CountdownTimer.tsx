@@ -2,13 +2,19 @@ import React, { useState, useEffect } from 'react'
 
 interface CountdownTimerProps {
   endTime: number // timestamp in seconds
+  isFinalized: boolean
   onTimeUp?: () => void
 }
 
-const CountdownTimer: React.FC<CountdownTimerProps> = ({ endTime, onTimeUp }) => {
+const CountdownTimer: React.FC<CountdownTimerProps> = ({ endTime, isFinalized, onTimeUp }) => {
   const [timeLeft, setTimeLeft] = useState(0)
 
   useEffect(() => {
+    if (isFinalized) {
+      setTimeLeft(0)
+      return
+    }
+
     const calculateTimeLeft = () => {
       const now = Math.floor(Date.now() / 1000)
       const remaining = endTime - now
@@ -28,7 +34,7 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ endTime, onTimeUp }) =>
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [endTime, onTimeUp])
+  }, [endTime, isFinalized, onTimeUp])
 
   const formatTime = (seconds: number) => {
     if (seconds === 0) return { hours: '00', minutes: '00', seconds: '00' }
@@ -46,32 +52,19 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ endTime, onTimeUp }) =>
 
   const { hours, minutes, seconds } = formatTime(timeLeft)
   const isUrgent = timeLeft < 300 // 5분 미만일 때 urgent
-  const isExpired = timeLeft === 0
+  const isExpired = timeLeft === 0 || isFinalized
+
+  if (isExpired) {
+    return (
+      <div className="text-2xl font-bold text-red-400">
+        종료됨
+      </div>
+    )
+  }
 
   return (
-    <div className="flex items-center space-x-2">
-      <div className={`
-        flex items-center space-x-1 font-mono text-2xl font-bold
-        ${isExpired ? 'text-red-500' : isUrgent ? 'text-yellow-400 animate-pulse' : 'text-white'}
-      `}>
-        <div className="glass-card px-3 py-2 rounded-lg">
-          {hours}
-        </div>
-        <span>:</span>
-        <div className="glass-card px-3 py-2 rounded-lg">
-          {minutes}
-        </div>
-        <span>:</span>
-        <div className="glass-card px-3 py-2 rounded-lg">
-          {seconds}
-        </div>
-      </div>
-      
-      <div className="flex flex-col text-xs text-white/60">
-        <span>시</span>
-        <span>분</span>
-        <span>초</span>
-      </div>
+    <div className={`text-2xl font-bold ${isUrgent ? 'text-orange-400 animate-pulse' : 'text-yellow-400'}`}>
+      {hours !== '00' ? `${hours}:${minutes}:${seconds}` : `${minutes}:${seconds}`}
     </div>
   )
 }

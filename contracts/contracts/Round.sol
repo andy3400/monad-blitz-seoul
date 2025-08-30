@@ -135,26 +135,41 @@ contract Round {
     function _distributePrizes() internal {
         if (winningPoolAmount == 0) return;
         
-        // Track processed users to avoid duplicate payments
-        mapping(address => bool) storage processedUsers;
+        // Create a dynamic array to track processed users
+        address[] memory processedUsers = new address[](bets.length);
+        uint256 processedCount = 0;
         
         for (uint256 i = 0; i < bets.length; i++) {
             Bet memory currentBet = bets[i];
             
-            // Only process winning bets and unique users
-            if (currentBet.tokenAddress == winningToken && !processedUsers[currentBet.bettor]) {
-                uint256 userWinningBet = userBets[currentBet.bettor][winningToken];
+            // Only process winning bets
+            if (currentBet.tokenAddress == winningToken) {
+                // Check if user already processed
+                bool alreadyProcessed = false;
+                for (uint256 j = 0; j < processedCount; j++) {
+                    if (processedUsers[j] == currentBet.bettor) {
+                        alreadyProcessed = true;
+                        break;
+                    }
+                }
                 
-                if (userWinningBet > 0) {
-                    uint256 prizeAmount = (userWinningBet * totalPrizePool) / winningPoolAmount;
-                    processedUsers[currentBet.bettor] = true;
+                if (!alreadyProcessed) {
+                    uint256 userWinningBet = userBets[currentBet.bettor][winningToken];
                     
-                    // Clear user's winning bet to prevent re-processing
-                    userBets[currentBet.bettor][winningToken] = 0;
-                    
-                    (bool success, ) = payable(currentBet.bettor).call{value: prizeAmount}("");
-                    if (success) {
-                        emit PrizeDistributed(currentBet.bettor, prizeAmount);
+                    if (userWinningBet > 0) {
+                        uint256 prizeAmount = (userWinningBet * totalPrizePool) / winningPoolAmount;
+                        
+                        // Mark user as processed
+                        processedUsers[processedCount] = currentBet.bettor;
+                        processedCount++;
+                        
+                        // Clear user's winning bet to prevent re-processing
+                        userBets[currentBet.bettor][winningToken] = 0;
+                        
+                        (bool success, ) = payable(currentBet.bettor).call{value: prizeAmount}("");
+                        if (success) {
+                            emit PrizeDistributed(currentBet.bettor, prizeAmount);
+                        }
                     }
                 }
             }
