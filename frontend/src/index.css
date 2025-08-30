@@ -26,8 +26,7 @@
     width: 100%;
     height: 100%;
     background-image: 
-      radial-gradient(circle at 25% 75%, rgba(183, 148, 246, 0.12) 0%, transparent 60%),
-      radial-gradient(circle at 75% 25%, rgba(99, 179, 237, 0.08) 0%, transparent 60%);
+      radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.06) 0%, transparent 70%);
     pointer-events: none;
     z-index: -1;
   }
@@ -46,7 +45,7 @@
     background-clip: text;
     -webkit-text-fill-color: transparent;
     text-shadow: 0 0 30px rgba(246, 224, 94, 0.5);
-    animation: electric-pulse 3s ease-in-out infinite, gradient-shift 6s ease infinite;
+    animation: gradient-shift 6s ease infinite;
     position: relative;
   }
   
@@ -67,7 +66,7 @@
       rgba(255, 255, 255, 0.05) 50%,
       rgba(255, 255, 255, 0.1) 100%
     );
-    backdrop-filter: blur(40px) saturate(180%);
+    backdrop-filter: blur(8px) saturate(120%);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 24px;
     box-shadow: 
@@ -110,7 +109,7 @@
     background-size: 200% 200%;
     @apply text-white font-semibold py-4 px-8 rounded-2xl transition-all duration-300;
     border: 1px solid rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(4px);
     box-shadow: 
       0 8px 32px rgba(168, 85, 247, 0.3),
       inset 0 1px 0 rgba(255, 255, 255, 0.2);
@@ -126,7 +125,7 @@
   
   .btn-secondary {
     background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(4px);
     @apply text-white font-medium py-2 px-4 rounded-xl transition-all duration-300;
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
@@ -158,7 +157,7 @@
     width: 120px;
     height: 120px;
     background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(4px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 10px;
   }
@@ -280,7 +279,7 @@
 
 @keyframes isometric-float {
   0%, 100% {
-    transform: rotateX(60deg) rotateY(-45deg) rotateZ(0deg);
+    transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
   }
   50% {
     transform: rotateX(61deg) rotateY(-44deg) rotateZ(0.5deg);
@@ -351,7 +350,7 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
   transform-style: preserve-3d;
-  transform: rotateX(60deg) rotateY(-45deg) rotateZ(0deg);
+  transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
   position: relative;
   padding: 2rem;
 }
@@ -360,27 +359,22 @@
   width: 100px;
   height: 100px;
   position: relative;
-  transform-style: preserve-3d;
-  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   cursor: pointer;
-  transform: translateZ(0);
-  backface-visibility: hidden;
+  transition: transform 0.2s ease;
 }
 
 .isometric-cube:hover {
-  will-change: transform;
-  transform: translateZ(60px) scale(1.1);
+  transform: scale(1.05);
 }
 
 .cube-face {
   position: absolute;
   width: 100px;
   height: 100px;
-  background: linear-gradient(135deg, rgba(183, 148, 246, 0.25) 0%, rgba(99, 179, 237, 0.25) 100%);
-  backdrop-filter: blur(15px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -389,7 +383,7 @@
 }
 
 .cube-face.front { 
-  transform: rotateY(0deg) translateZ(60px);
+  transform: rotateY(0deg) translateZ(0px);
   transform-origin: center center;
 }
 .cube-face.right { 
@@ -417,7 +411,7 @@
 }
 
 .cube-selected {
-  transform: translateZ(40px) scale(1.05);
+  transform: scale(1.05);
 }
 
 .cube-selected .cube-face {
@@ -610,7 +604,7 @@
     width: 60px;
     height: 60px;
     border-radius: 8px;
-    backdrop-filter: blur(10px) saturate(120%); /* 가벼운 블러 */
+    /* backdrop-filter removed for performance */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); /* 간소화된 그림자 */
   }
   
@@ -636,7 +630,7 @@
   }
   
   .premium-glass {
-    backdrop-filter: blur(15px) saturate(130%);
+    backdrop-filter: blur(6px) saturate(120%);
     border-radius: 16px;
   }
   
@@ -655,7 +649,7 @@
   
   .isometric-container {
     animation: none;
-    transform: rotateX(60deg) rotateY(-45deg) rotateZ(0deg);
+    transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
   }
   
   .isometric-cube:hover {

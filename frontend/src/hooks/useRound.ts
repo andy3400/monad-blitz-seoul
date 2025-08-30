@@ -1,6 +1,8 @@
 import { useReadContract, useReadContracts } from 'wagmi'
 import { useAccount } from 'wagmi'
 
+const MULTICALL3_ADDRESS = '0xcA11bde05977b3631167028862bE2a173976CA11'
+
 export const ROUND_ABI = [
   {
     "inputs": [{"name": "tokenAddress", "type": "address"}],
@@ -97,59 +99,61 @@ export const ROUND_ABI = [
 export function useRound(roundAddress?: string) {
   const { address: userAddress } = useAccount()
 
-  const { data: registeredTokens, refetch: refetchTokens } = useReadContract({
-    address: roundAddress as `0x${string}`,
-    abi: ROUND_ABI,
-    functionName: 'getRegisteredTokens',
-    query: { enabled: !!roundAddress }
+  // Batch all contract calls using useReadContracts
+  const contracts = roundAddress ? [
+    {
+      address: roundAddress as `0x${string}`,
+      abi: ROUND_ABI,
+      functionName: 'getRegisteredTokens',
+    },
+    {
+      address: roundAddress as `0x${string}`,
+      abi: ROUND_ABI,
+      functionName: 'getRoundStats',
+    },
+    {
+      address: roundAddress as `0x${string}`,
+      abi: ROUND_ABI,
+      functionName: 'getTimeInfo',
+    },
+    {
+      address: roundAddress as `0x${string}`,
+      abi: ROUND_ABI,
+      functionName: 'getAllTokenTotalBets',
+    },
+    {
+      address: roundAddress as `0x${string}`,
+      abi: ROUND_ABI,
+      functionName: 'getBetsCount',
+    },
+    // User-specific calls only if user is connected
+    ...(userAddress ? [{
+      address: roundAddress as `0x${string}`,
+      abi: ROUND_ABI,
+      functionName: 'getUserTotalBets',
+      args: [userAddress as `0x${string}`],
+    }] : [])
+  ] : []
+
+  const { 
+    data: batchResults, 
+    refetch: refetchAll,
+    isLoading 
+  } = useReadContracts({
+    contracts: contracts as any,
+    query: {
+      enabled: !!roundAddress,
+    },
+    multicallAddress: MULTICALL3_ADDRESS,
   })
 
-  const { data: roundStats, refetch: refetchStats } = useReadContract({
-    address: roundAddress as `0x${string}`,
-    abi: ROUND_ABI,
-    functionName: 'getRoundStats',
-    query: { enabled: !!roundAddress }
-  })
-
-  const { data: timeInfo, refetch: refetchTime } = useReadContract({
-    address: roundAddress as `0x${string}`,
-    abi: ROUND_ABI,
-    functionName: 'getTimeInfo',
-    query: { enabled: !!roundAddress }
-  })
-
-  const { data: tokenBetAmounts, refetch: refetchTokenBets } = useReadContract({
-    address: roundAddress as `0x${string}`,
-    abi: ROUND_ABI,
-    functionName: 'getAllTokenTotalBets',
-    query: { enabled: !!roundAddress }
-  })
-
-  const { data: userBets, refetch: refetchUserBets } = useReadContract({
-    address: roundAddress as `0x${string}`,
-    abi: ROUND_ABI,
-    functionName: 'getUserTotalBets',
-    args: [userAddress as `0x${string}`],
-    query: { enabled: !!roundAddress && !!userAddress }
-  })
-
-  const { data: betsCount, refetch: refetchBetsCount } = useReadContract({
-    address: roundAddress as `0x${string}`,
-    abi: ROUND_ABI,
-    functionName: 'getBetsCount',
-    query: { enabled: !!roundAddress }
-  })
-
-  const refetchAll = async () => {
-    await Promise.all([
-      refetchTokens(),
-      refetchStats(), 
-      refetchTime(),
-      refetchTokenBets(),
-      refetchUserBets(),
-      refetchBetsCount()
-    ])
-  }
+  // Extract results from batch
+  const registeredTokens = batchResults?.[0]?.result
+  const roundStats = batchResults?.[1]?.result
+  const timeInfo = batchResults?.[2]?.result
+  const tokenBetAmounts = batchResults?.[3]?.result
+  const betsCount = batchResults?.[4]?.result
+  const userBets = userAddress && batchResults?.[5]?.result
 
   return {
     registeredTokens: registeredTokens as string[] | undefined,
@@ -158,6 +162,7 @@ export function useRound(roundAddress?: string) {
     tokenBetAmounts: tokenBetAmounts as [string[], bigint[]] | undefined,
     userBets: userBets as [string[], bigint[]] | undefined,
     betsCount: betsCount as bigint | undefined,
+    isLoading,
     refetchAll,
   }
 }

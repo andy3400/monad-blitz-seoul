@@ -18,7 +18,7 @@ function App() {
   const { supportedTokens, currentRoundInfo, currentActiveRound, isLoading: factoryLoading } = useRoundFactory()
 
   // Round 데이터 - 항상 호출 (조건은 hook 내부에서 처리)
-  const { registeredTokens, roundStats, timeInfo, tokenBetAmounts, userBets, betsCount, refetchAll } = useRound(currentActiveRound)
+  const { registeredTokens, roundStats, timeInfo, tokenBetAmounts, userBets, betsCount, isLoading: roundLoading, refetchAll } = useRound(currentActiveRound)
 
   // 토큰 데이터 매칭 - 항상 호출
   const gameTokens = useMemo(() => {
@@ -97,7 +97,8 @@ function App() {
       const container = document.querySelector('.floating-particles')
       if (!container || container.children.length > 0) return
       
-      for (let i = 0; i < 30; i++) {
+      // 30개에서 8개로 대폭 감소
+      for (let i = 0; i < 8; i++) {
         const particle = document.createElement('div')
         particle.className = 'particle'
         particle.style.left = Math.random() * 100 + '%'
@@ -125,7 +126,7 @@ function App() {
   }
 
   // 로딩 중
-  if (factoryLoading) {
+  if (factoryLoading || roundLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center overflow-hidden relative">
         <div className="floating-particles"></div>
@@ -161,12 +162,10 @@ function App() {
           <div className="text-center">
             {/* 3D Waiting Grid */}
             <div className="isometric-scene mb-12">
-              <div className="isometric-container" style={{animation: 'isometric-float 8s ease-in-out infinite'}}>
+              <div className="isometric-container">
                 {Array.from({ length: 9 }).map((_, index) => (
                   <div key={index} className="isometric-cube opacity-50">
                     <div className="cube-face front"></div>
-                    <div className="cube-face right"></div>
-                    <div className="cube-face top"></div>
                   </div>
                 ))}
               </div>
@@ -199,7 +198,7 @@ function App() {
     await refetchAll?.()
   }
 
-  if (!roundData) {
+  if (!roundData && !roundLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <div className="glass-card p-8 text-center">
@@ -262,7 +261,7 @@ function App() {
             {/* Left Side - 3D Isometric Game Grid */}
             <div className="lg:col-span-2 flex flex-col items-center justify-center">
               <div className="isometric-scene">
-                <div className="isometric-container" style={{animation: 'isometric-float 10s ease-in-out infinite'}}>
+                <div className="isometric-container">
                   {gridTokens.map((token, index) => (
                     <div
                       key={index}
@@ -279,7 +278,7 @@ function App() {
                       }`}
                       onClick={() => handleTokenClick(token)}
                     >
-                      {/* Optimized Cube - Only 3 faces for performance */}
+                      {/* Ultra Optimized Cube - Single face for maximum performance */}
                       <div className="cube-face front">
                         {token && (
                           <div className="token-content">
@@ -293,8 +292,6 @@ function App() {
                           </div>
                         )}
                       </div>
-                      <div className="cube-face right"></div>
-                      <div className="cube-face top"></div>
                     </div>
                   ))}
                 </div>
