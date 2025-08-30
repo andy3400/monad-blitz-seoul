@@ -341,8 +341,8 @@ function App() {
       {/* Stats Bar */}
       <div className="relative z-15 px-4 mb-12">
         <div className="premium-glass p-6 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-            <div className="space-y-2">
+          <div className="flex flex-col md:flex-row items-center justify-around gap-6">
+            <div className="text-center space-y-2">
               <div className="text-sm font-medium text-white/60 uppercase tracking-wider">Prize Pool</div>
               <div className="text-3xl font-bold text-transparent bg-gradient-to-r from-green-400 via-emerald-400 to-cyan-400 bg-clip-text">
                 {parseFloat(roundData.totalPool).toFixed(4)} MON
@@ -358,7 +358,8 @@ function App() {
               <div className="text-xs text-white/40 uppercase tracking-wider mt-1">Time Remaining</div>
             </div>
             <div className="hidden md:block h-12 w-px bg-white/10"></div>
-            <div className="text-center">
+            <div className="text-center space-y-2">
+              <div className="text-sm font-medium text-white/60 uppercase tracking-wider">Tokens</div>
               <div className="text-3xl font-bold text-white">
                 {gameTokens.length}
               </div>
