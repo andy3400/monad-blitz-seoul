@@ -74,33 +74,42 @@ npm run deploy:localhost
 npx hardhat verify --network monadTestnet <CONTRACT_ADDRESS> <CONSTRUCTOR_ARGS>
 ```
 
-## 📋 배포 후 설정
+## 📋 배포 후 라운드 관리
 
-### 1. 토큰 추가
-```javascript
-// RoundFactory 컨트랙트에 토큰 추가
-await factory.addSupportedToken(
-    "0x토큰주소", 
-    "BTC", 
-    "Bitcoin"
-);
+### 1. 라운드 상태 확인
+```bash
+npm run round:status <FACTORY_ADDRESS>
 ```
 
-### 2. 라운드 생성
-```javascript
-// 1시간(3600초) 라운드 생성
-const roundAddress = await factory.createRound("Morning Battle", 3600);
+### 2. 새 라운드 생성 (현재 가격으로 자동 설정)
+```bash
+npm run round:create <FACTORY_ADDRESS> "Morning Battle" 3600 BTC ETH SOL
 ```
 
-### 3. 토큰 등록
-```javascript
-// 라운드에 토큰들과 초기 가격 등록
-await factory.registerTokensInRound(
-    roundAddress,
-    ["0x토큰1주소", "0x토큰2주소"],
-    [65000000000, 2500000000] // 초기 가격 (wei 단위)
-);
+**파라미터 설명:**
+- `FACTORY_ADDRESS`: 배포된 RoundFactory 컨트랙트 주소
+- `"Morning Battle"`: 라운드 이름 (따옴표 필수)
+- `3600`: 지속 시간 (초 단위, 3600 = 1시간)
+- `BTC ETH SOL`: 참여할 토큰 심볼들 (공백으로 구분)
+
+### 3. 라운드 종료 및 정산
+```bash
+npm run round:finalize <FACTORY_ADDRESS> <ROUND_ADDRESS> BTC ETH SOL
 ```
+
+**자동 실행되는 작업:**
+- Binance API에서 현재 토큰 가격 조회
+- 가장 높은 상승률 토큰 계산
+- 승리자들에게 즉시 상금 분배
+- Factory의 토큰 가격 업데이트
+
+### 4. 실시간 가격 조회
+배포 시 모든 토큰은 Binance API에서 실시간 가격을 가져와 등록됩니다:
+- BTC: Bitcoin 현재가
+- ETH: Ethereum 현재가  
+- SOL: Solana 현재가
+- DOGE: Dogecoin 현재가
+- PEPE: Pepe 현재가
 
 ## ⚠️ 주의사항
 

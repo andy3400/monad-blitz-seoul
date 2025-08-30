@@ -16,15 +16,16 @@ module.exports = {
       url: "http://127.0.0.1:8545"
     },
     monad: {
-      url: process.env.MONAD_RPC_URL || "https://sepolia-rpc.monad.xyz/",
+      url: process.env.MONAD_RPC_URL || "https://testnet-rpc.monad.xyz",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      chainId: 10143,
       gasPrice: "auto"
     },
     // Monad testnet configuration
     monadTestnet: {
-      url: "https://sepolia-rpc.monad.xyz/",
+      url: "https://testnet-rpc.monad.xyz",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-      chainId: 41454,
+      chainId: 10143, // 0x279F
       gasPrice: "auto"
     }
   },

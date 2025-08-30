@@ -4,15 +4,25 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "hardhat test",
+    "compile": "hardhat compile",
+    "deploy:localhost": "hardhat run scripts/deploy.js --network localhost",
+    "deploy:monad": "hardhat run scripts/deploy.js --network monad",
+    "deploy:monad-testnet": "hardhat run scripts/deploy.js --network monadTestnet",
+    "verify": "hardhat verify --network",
+    "round:create": "hardhat run scripts/manageRound.js --network monadTestnet -- create",
+    "round:finalize": "hardhat run scripts/manageRound.js --network monadTestnet -- finalize",
+    "round:status": "hardhat run scripts/manageRound.js --network monadTestnet -- status"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
-    "dotenv": "^17.2.1",
-    "hardhat": "^3.0.3"
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "dotenv": "^16.3.1",
+    "hardhat": "^2.19.0"
+  },
+  "dependencies": {
+    "axios": "^1.11.0"
   }
 }

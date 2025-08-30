@@ -1,4 +1,5 @@
 const { ethers } = require("hardhat");
+const { getTokensWithPrices } = require("./priceUtils");
 
 async function main() {
     console.log("컨트랙트 배포를 시작합니다...");
@@ -23,10 +24,9 @@ async function main() {
         console.log("   주소:", factoryAddress);
         console.log("   Owner 주소:", deployer.address);
 
-        // 기본 토큰들을 추가 (예시)
+        // 기본 토큰들 정의 (실제 토큰 주소를 환경변수에서 가져옴)
         console.log("\n🪙 기본 토큰 추가 중...");
 
-        // 예시 토큰들 - 실제 배포시에는 실제 토큰 주소로 변경 필요
         const defaultTokens = [
             {
                 address: process.env.TOKEN_BTC_ADDRESS || "0x0000000000000000000000000000000000000001",
@@ -47,8 +47,7 @@ async function main() {
                 address: process.env.TOKEN_DOGE_ADDRESS || "0x0000000000000000000000000000000000000004",
                 symbol: "DOGE",
                 name: "DogeCoin"
-            }
-            ,
+            },
             {
                 address: process.env.TOKEN_PEPE_ADDRESS || "0x0000000000000000000000000000000000000005",
                 symbol: "PEPE",
@@ -56,9 +55,26 @@ async function main() {
             }
         ];
 
-        for (const token of defaultTokens) {
-            await roundFactory.addSupportedToken(token.address, token.symbol, token.name);
-            console.log(`   ✓ ${token.symbol} (${token.name}) 추가됨: ${token.address}`);
+        // Binance API에서 현재 가격을 가져와서 토큰 등록
+        console.log("📊 Binance API에서 현재 토큰 가격 조회 중...");
+        const tokensWithPrices = await getTokensWithPrices(defaultTokens);
+
+        for (const token of tokensWithPrices) {
+            if (token.currentPrice) {
+                await roundFactory.addSupportedToken(
+                    token.address, 
+                    token.symbol, 
+                    token.name, 
+                    token.currentPrice
+                );
+                
+                const priceUSD = ethers.formatUnits(token.currentPrice, 18);
+                console.log(`   ✓ ${token.symbol} (${token.name}) 추가됨`);
+                console.log(`     주소: ${token.address}`);
+                console.log(`     현재 가격: $${Number(priceUSD).toLocaleString()}`);
+            } else {
+                console.log(`   ⚠️  ${token.symbol} 가격 조회 실패 - 토큰 등록 건너뜀`);
+            }
         }
 
         // 배포 정보를 JSON 파일로 저장
@@ -71,7 +87,13 @@ async function main() {
                     owner: deployer.address
                 }
             },
-            supportedTokens: defaultTokens,
+            supportedTokens: tokensWithPrices.map(token => ({
+                address: token.address,
+                symbol: token.symbol,
+                name: token.name,
+                initialPrice: token.currentPrice ? token.currentPrice.toString() : null,
+                priceUSD: token.currentPrice ? ethers.formatUnits(token.currentPrice, 18) : null
+            })),
             timestamp: new Date().toISOString(),
             blockNumber: await ethers.provider.getBlockNumber()
         };

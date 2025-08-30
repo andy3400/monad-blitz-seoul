@@ -22,6 +22,9 @@ export default {
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'bounce-light': 'bounce 2s infinite',
+        'gradient-shift': 'gradient-shift 3s ease infinite',
+        'cube-float': 'cube-float 3s ease-in-out infinite alternate',
+        'float-particle': 'float-particle 6s linear infinite',
       }
     },
   },
