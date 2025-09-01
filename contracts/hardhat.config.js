@@ -18,14 +18,14 @@ module.exports = {
     monad: {
       url: process.env.MONAD_RPC_URL || "https://testnet-rpc.monad.xyz",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-      chainId: 10143,
+      chainId: 41454,
       gasPrice: "auto"
     },
     // Monad testnet configuration
     monadTestnet: {
       url: "https://testnet-rpc.monad.xyz",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-      chainId: 10143, // 0x279F
+      chainId: 41454, // 0xa1f6
       gasPrice: "auto"
     },
     // Ethereum Sepolia testnet for cross-chain testing
