@@ -9,7 +9,7 @@ contract CrossChainPriceFeeder {
     // Ethereum Sepolia 상수
     address constant CCIP_ROUTER_SEPOLIA = 0x0BF3dE8c5D3e8A2B34D2BEeB17ABfCeBaf363A59; // Sepolia CCIP Router
     address constant LINK_TOKEN_SEPOLIA = 0x779877A7B0D9E8603169DdbD7836e478b4624789; // Sepolia LINK
-    uint64 constant MONAD_TESTNET_SELECTOR = 2183018362218727504;
+    uint64 constant MONAD_TESTNET_SELECTOR = 2183018362218727504; // Monad Testnet Chain Selector
 
     struct TokenPriceInfo {
         address tokenAddress;

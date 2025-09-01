@@ -6,8 +6,8 @@ const DEFAULT_NETWORKS = {
   monadTestnet: {
     name: 'Monad Testnet',
     chainId: 41454,
-    rpcUrl: process.env.MONAD_TESTNET_RPC_URL,
-    factoryAddress: process.env.FACTORY_ADDRESS_MONAD_TESTNET
+    rpcUrl: process.env.MONAD_TESTNET_RPC_URL || process.env.MONAD_RPC_URL,
+    factoryAddress: process.env.FACTORY_ADDRESS_MONAD_TESTNET || process.env.FACTORY_ADDRESS
   },
   sepolia: {
     name: 'Sepolia',

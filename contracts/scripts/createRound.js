@@ -1,5 +1,4 @@
 const { ethers } = require("hardhat");
-const { createTokenPriceArray, getMultipleTokenPrices } = require("./priceUtils");
 
 async function main() {
     // 환경 변수에서 파라미터 읽기

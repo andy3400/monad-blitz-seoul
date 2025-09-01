@@ -7,7 +7,7 @@ import {Client} from "@chainlink/contracts-ccip/contracts/libraries/Client.sol";
 
 contract CrossChainRoundFactory is CCIPReceiver {
     // 상수 정의 - Monad 테스트넷 기준
-    address constant CCIP_ROUTER = 0x5f16e51e3Dcb255480F090157DD01bA962a53E54;
+    address constant CCIP_ROUTER = 0x9C32fCB86BF0f4a1A8921a9Fe46de3198bb884B2; // Monad Testnet CCIP Router
     uint64 constant ETH_SEPOLIA_SELECTOR = 16015286601757825753;
 
     struct TokenInfo {

@@ -2,7 +2,7 @@ import { getDefaultConfig } from '@rainbow-me/rainbowkit'
 import { defineChain } from 'viem'
 
 export const monadTestnet = defineChain({
-  id: 10143,
+  id: 41454,
   name: 'Monad Testnet',
   nativeCurrency: {
     decimals: 18,
