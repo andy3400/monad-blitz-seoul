@@ -46,7 +46,7 @@ contracts/
 ### 블록체인
 - **네트워크**: Monad Testnet
 - **RPC URL**: https://testnet-rpc.monad.xyz
-- **Chain ID**: 10143 (0x279F)
+- **Chain ID**: 41454 (0xa1f6)
 - **Explorer**: https://testnet.monadexplorer.com/
 
 ### 프론트엔드
